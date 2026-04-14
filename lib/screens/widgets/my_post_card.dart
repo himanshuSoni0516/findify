@@ -1,3 +1,4 @@
+import 'package:findify/core/app_theme.dart';
 import 'package:flutter/material.dart';
 import '../../models/post_model.dart';
 
@@ -19,7 +20,7 @@ class MyPostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLost = post.type == 'lost';
     final typeColor =
-    isLost ? const Color(0xFFFF6B6B) : const Color(0xFF51CF66);
+    isLost ? AppTheme.lostColor : AppTheme.foundColor;
 
     return GestureDetector(
       onTap: onTap,
@@ -27,7 +28,7 @@ class MyPostCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -101,7 +102,7 @@ class MyPostCard extends StatelessWidget {
                     value: 'resolve',
                     child: Row(children: [
                       Icon(Icons.check_circle_outline,
-                          color: Color(0xFF51CF66), size: 18),
+                          color: AppTheme.foundColor, size: 18),
                       SizedBox(width: 10),
                       Text('Mark resolved'),
                     ]),
@@ -110,10 +111,10 @@ class MyPostCard extends StatelessWidget {
                   value: 'delete',
                   child: Row(children: [
                     Icon(Icons.delete_outline,
-                        color: Color(0xFFFF6B6B), size: 18),
+                        color: AppTheme.lostColor, size: 18),
                     SizedBox(width: 10),
                     Text('Delete',
-                        style: TextStyle(color: Color(0xFFFF6B6B))),
+                        style: TextStyle(color: AppTheme.lostColor)),
                   ]),
                 ),
               ],

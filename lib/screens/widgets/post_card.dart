@@ -1,3 +1,4 @@
+import 'package:findify/core/app_theme.dart';
 import 'package:flutter/material.dart';
 import '../../models/post_model.dart';
 
@@ -16,11 +17,11 @@ class PostCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(0.10),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -33,7 +34,7 @@ class PostCard extends StatelessWidget {
             if (post.imageUrl != null)
               ClipRRect(
                 borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(16)),
+                const BorderRadius.vertical(top: Radius.circular(12)),
                 child: Image.network(
                   post.imageUrl!,
                   height: 160,
@@ -59,12 +60,12 @@ class PostCard extends StatelessWidget {
                       _badge(
                         isLost ? 'LOST' : 'FOUND',
                         isLost
-                            ? const Color(0xFFFF6B6B)
-                            : const Color(0xFF51CF66),
+                            ? AppTheme.lostColor
+                            : AppTheme.foundColor,
                       ),
                       if (post.isResolved) ...[
                         const SizedBox(width: 8),
-                        _badge('RESOLVED', Colors.grey),
+                        _badge('RESOLVED', Colors.blue),
                       ],
                       const Spacer(),
                       Text(
@@ -80,7 +81,7 @@ class PostCard extends StatelessWidget {
                   Text(
                     post.title,
                     style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w700),
+                        fontSize: 18, fontWeight: FontWeight.w700),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -89,7 +90,7 @@ class PostCard extends StatelessWidget {
                   // Description
                   Text(
                     post.description,
-                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 15, color: Colors.grey[600]),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -99,13 +100,13 @@ class PostCard extends StatelessWidget {
                   Row(
                     children: [
                       Icon(Icons.location_on_outlined,
-                          size: 14, color: Colors.grey[500]),
+                          size: 16, color: Colors.grey[500]),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           post.location,
                           style: TextStyle(
-                              fontSize: 12, color: Colors.grey[500]),
+                              fontSize: 14, color: Colors.grey[500]),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -124,13 +125,13 @@ class PostCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(6),
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
         label,
         style: TextStyle(
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: color,
             letterSpacing: 0.5),

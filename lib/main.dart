@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/post_controller.dart';
+import 'core/app_theme.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
@@ -21,12 +22,9 @@ class FindifyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Findify',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Roboto',
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF4F46E5),
-        ),
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system, // follows phone setting automatically
       initialBinding: BindingsBuilder(() {
         Get.put(AuthController());
         Get.put(PostController());
@@ -43,21 +41,15 @@ class FindifyApp extends StatelessWidget {
   }
 }
 
-// ── Bottom nav shell — wraps Home + Profile ─────────────────
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
-
   @override
   State<MainShell> createState() => _MainShellState();
 }
 
 class _MainShellState extends State<MainShell> {
   int _index = 0;
-
-  final _screens = const [
-    HomeScreen(),
-    ProfileScreen(),
-  ];
+  final _screens = const [HomeScreen(), ProfileScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -66,19 +58,15 @@ class _MainShellState extends State<MainShell> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
-        backgroundColor: Colors.white,
-        indicatorColor: const Color(0xFF4F46E5).withOpacity(0.1),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded,
-                color: Color(0xFF4F46E5)),
+            selectedIcon: Icon(Icons.home_rounded, color: AppTheme.primary),
             label: 'Feed',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person_rounded,
-                color: Color(0xFF4F46E5)),
+            selectedIcon: Icon(Icons.person_rounded, color: AppTheme.primary),
             label: 'Profile',
           ),
         ],

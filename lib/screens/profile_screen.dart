@@ -1,7 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/post_controller.dart';
+import '../core/app_theme.dart';
 import '../models/post_model.dart';
 import 'post_detail_screen.dart';
 import 'widgets/my_post_card.dart';
@@ -16,70 +19,69 @@ class ProfileScreen extends StatelessWidget {
     final user = authCtrl.currentUser.value;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             // ── Profile header ────────────────────────────
             SliverToBoxAdapter(
               child: Container(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
                 child: Column(
                   children: [
                     // Back button + title
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => Get.back(),
-                          child: const Icon(Icons.arrow_back),
-                        ),
-                        const SizedBox(width: 16),
-                        const Text('My Profile',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700)),
-                      ],
-                    ),
+                    const Text('My Profile',
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700)),
                     const SizedBox(height: 24),
 
                     // Avatar
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor:
-                      const Color(0xFF4F46E5).withOpacity(0.1),
-                      child: Text(
-                        user?.name.isNotEmpty == true
-                            ? user!.name.substring(0, 1).toUpperCase()
-                            : '?',
-                        style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF4F46E5)),
-                      ),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundColor: AppTheme.primary.withOpacity(0.1),
+                          child: Text(
+                            user?.name.isNotEmpty == true
+                                ? user!.name.substring(0, 1).toUpperCase()
+                                : '?',
+                            style: const TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primary),
+                          ),
+                        ),
+                        SizedBox(width: 14,),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(user?.name ?? 'Unknown',
+                                style: const TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold)),
+
+                            if (user?.course != null &&
+                                user!.course!.isNotEmpty)
+                              Text(
+                                '${user.course} - ${user.semester  ?? ''} Sem',
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.grey[500]),
+                              ),
+
+                            if (user?.phone != null && user!.phone!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Text(user.phone!,
+                                    style: TextStyle(
+                                        fontSize: 14, color: Colors.grey[500])),
+                              ),
+
+                          ],
+                        )
+                      ],
                     ),
-                    const SizedBox(height: 14),
 
-                    Text(user?.name ?? 'Unknown',
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-
-                    if (user?.course != null &&
-                        user!.course!.isNotEmpty)
-                      Text(
-                        '${user.course} · ${user.semester ?? ''}',
-                        style: TextStyle(
-                            fontSize: 13, color: Colors.grey[500]),
-                      ),
-
-                    if (user?.phone != null && user!.phone!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(user.phone!,
-                            style: TextStyle(
-                                fontSize: 13, color: Colors.grey[500])),
-                      ),
 
                     const SizedBox(height: 20),
 
@@ -94,13 +96,14 @@ class ProfileScreen extends StatelessWidget {
 
                       return Row(
                         children: [
-                          _statBox('Total', myPosts.length.toString()),
+                          _statBox('Total', myPosts.length.toString(),
+                              color: Colors.blue),
                           _divider(),
                           _statBox('Active', active.toString(),
-                              color: const Color(0xFF4F46E5)),
+                              color: AppTheme.primary),
                           _divider(),
                           _statBox('Resolved', resolved.toString(),
-                              color: const Color(0xFF51CF66)),
+                              color: AppTheme.foundColor),
                         ],
                       );
                     }),
@@ -114,16 +117,16 @@ class ProfileScreen extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: () => _confirmLogout(authCtrl),
                         icon: const Icon(Icons.logout_rounded,
-                            size: 18, color: Color(0xFFFF6B6B)),
+                            size: 18, color: AppTheme.lostColor),
                         label: const Text('Log Out',
                             style: TextStyle(
-                                color: Color(0xFFFF6B6B),
+                                color: AppTheme.lostColor,
                                 fontWeight: FontWeight.w600)),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(
-                              color: Color(0xFFFF6B6B), width: 1.5),
+                              color: AppTheme.lostColor, width: 1.5),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                       ),
                     ),
@@ -146,9 +149,9 @@ class ProfileScreen extends StatelessWidget {
                       final count = _getMyPosts(postCtrl.posts,
                           authCtrl.currentUser.value?.id)
                           .length;
-                      return Text('$count posts',
+                      return Text('$count Posts',
                           style: TextStyle(
-                              fontSize: 13, color: Colors.grey[500]));
+                              fontSize: 16, color: Colors.grey[500]));
                     }),
                   ],
                 ),
@@ -165,7 +168,7 @@ class ProfileScreen extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.all(40),
                       child: CircularProgressIndicator(
-                          color: Color(0xFF4F46E5)),
+                          color: AppTheme.primary),
                     ),
                   ),
                 );
@@ -196,7 +199,7 @@ class ProfileScreen extends StatelessWidget {
                     final post = myPosts[i];
                     return Padding(
                       padding:
-                      const EdgeInsets.symmetric(horizontal: 20),
+                      const EdgeInsets.symmetric(horizontal: 12),
                       child: MyPostCard(
                         post: post,
                         onTap: () => Get.to(
@@ -233,25 +236,25 @@ class ProfileScreen extends StatelessWidget {
           children: [
             Text(value,
                 style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: color ?? Colors.black)),
             const SizedBox(height: 2),
             Text(label,
                 style:
-                TextStyle(fontSize: 12, color: Colors.grey[500])),
+                TextStyle(fontSize: 16, color: Colors.grey[500])),
           ],
         ),
       );
 
   Widget _divider() => Container(
-      width: 1, height: 32, color: Colors.grey.shade200);
+      width: 2, height: 32, color: Colors.grey.shade200);
 
   void _confirmDelete(PostModel post, PostController ctrl) async {
     final confirm = await Get.dialog<bool>(
       AlertDialog(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16)),
+            borderRadius: BorderRadius.circular(12)),
         title: const Text('Delete Post?',
             style: TextStyle(fontWeight: FontWeight.bold)),
         content: const Text('This cannot be undone.'),
@@ -264,7 +267,7 @@ class ProfileScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Get.back(result: true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF6B6B),
+              backgroundColor: AppTheme.lostColor,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
@@ -277,7 +280,7 @@ class ProfileScreen extends StatelessWidget {
     if (confirm == true) {
       await ctrl.deletePost(post.id);
       Get.snackbar('Deleted', 'Post removed',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           margin: const EdgeInsets.all(16));
     }
   }
@@ -286,7 +289,7 @@ class ProfileScreen extends StatelessWidget {
     final confirm = await Get.dialog<bool>(
       AlertDialog(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16)),
+            borderRadius: BorderRadius.circular(12)),
         title: const Text('Mark as Resolved?',
             style: TextStyle(fontWeight: FontWeight.bold)),
         content:
@@ -300,7 +303,7 @@ class ProfileScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Get.back(result: true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF51CF66),
+              backgroundColor: AppTheme.foundColor,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
@@ -313,8 +316,8 @@ class ProfileScreen extends StatelessWidget {
     if (confirm == true) {
       await ctrl.markResolved(post.id);
       Get.snackbar('Done!', 'Marked as resolved',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFF51CF66),
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: AppTheme.foundColor,
           colorText: Colors.white,
           margin: const EdgeInsets.all(16));
     }
@@ -324,7 +327,7 @@ class ProfileScreen extends StatelessWidget {
     final confirm = await Get.dialog<bool>(
       AlertDialog(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16)),
+            borderRadius: BorderRadius.circular(12)),
         title: const Text('Log out?',
             style: TextStyle(fontWeight: FontWeight.bold)),
         content: const Text('You will be returned to the login screen.'),
@@ -337,7 +340,7 @@ class ProfileScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Get.back(result: true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF6B6B),
+              backgroundColor: AppTheme.lostColor,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),

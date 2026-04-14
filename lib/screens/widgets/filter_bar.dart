@@ -1,3 +1,4 @@
+import 'package:findify/core/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/post_controller.dart';
@@ -11,9 +12,9 @@ class FilterBar extends StatelessWidget {
     final filters = ['all', 'lost', 'found'];
     final labels = {'all': 'All', 'lost': 'Lost', 'found': 'Found'};
     final colors = {
-      'all': const Color(0xFF4F46E5),
-      'lost': const Color(0xFFFF6B6B),
-      'found': const Color(0xFF51CF66),
+      'all': AppTheme.primary,
+      'lost': AppTheme.lostColor,
+      'found': AppTheme.foundColor,
     };
 
     return Obx(() => Row(
@@ -24,20 +25,20 @@ class FilterBar extends StatelessWidget {
           onTap: () => ctrl.selectedFilter.value = f,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            margin: const EdgeInsets.only(right: 8),
+            margin: const EdgeInsets.only(right: 10),
             padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            const EdgeInsets.symmetric(horizontal: 26, vertical: 6),
             decoration: BoxDecoration(
-              color: isActive ? color : Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              color: isActive ? color : Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: isActive ? color : Colors.grey.shade200,
+                color: isActive ? color : Colors.grey.shade900,
               ),
             ),
             child: Text(
               labels[f]!,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: isActive ? Colors.white : Colors.grey[600],
               ),

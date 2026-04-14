@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/post_controller.dart';
+import '../core/app_theme.dart';
 
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({super.key});
@@ -170,7 +171,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: _pickedImage != null
-                        ? const Color(0xFF4F46E5)
+                        ? AppTheme.primary
                         : Colors.grey.shade200,
                     width: _pickedImage != null ? 2 : 1,
                   ),
@@ -268,7 +269,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               child: ElevatedButton(
                 onPressed: postCtrl.isUploading.value ? null : _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4F46E5),
+                  backgroundColor: AppTheme.primary,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/post_controller.dart';
 import '../core/api_client.dart';
+import '../core/app_theme.dart';
 import '../core/constants.dart';
 import '../models/post_model.dart';
 
@@ -53,10 +54,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   Widget build(BuildContext context) {
     final isLost = post.type == 'lost';
     final typeColor =
-    isLost ? const Color(0xFFFF6B6B) : const Color(0xFF51CF66);
+    isLost ? AppTheme.lostColor : AppTheme.foundColor;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           // ── App bar with image ──────────────────────────
@@ -117,13 +118,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       ),
                       if (post.isResolved) ...[
                         const SizedBox(width: 8),
-                        _badge('RESOLVED', Colors.grey),
+                        _badge('RESOLVED', Colors.blue),
                       ],
                       const Spacer(),
                       Text(
                         _formatDate(post.createdAt),
                         style: TextStyle(
-                            fontSize: 12, color: Colors.grey[500]),
+                            fontSize: 14, color: Colors.grey[500]),
                       ),
                     ],
                   ),
@@ -141,13 +142,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   Row(
                     children: [
                       Icon(Icons.location_on_rounded,
-                          size: 16, color: typeColor),
+                          size: 20, color: typeColor),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           post.location,
                           style: TextStyle(
-                              fontSize: 14, color: Colors.grey[700]),
+                              fontSize: 18, color: Colors.grey[700]),
                         ),
                       ),
                     ],
@@ -177,7 +178,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       child: Padding(
                         padding: EdgeInsets.all(12),
                         child: CircularProgressIndicator(
-                            color: Color(0xFF4F46E5)),
+                            color: AppTheme.primary),
                       ),
                     )
                         : ownerProfile == null
@@ -190,9 +191,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           children: [
                             CircleAvatar(
                               radius: 24,
-                              backgroundColor: const Color(
-                                  0xFF4F46E5)
-                                  .withOpacity(0.1),
+                              backgroundColor: AppTheme.primary.withOpacity(0.1),
                               child: Text(
                                 (ownerProfile!['name'] as String)
                                     .substring(0, 1)
@@ -200,7 +199,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF4F46E5),
+                                  color: AppTheme.primary,
                                 ),
                               ),
                             ),
@@ -241,7 +240,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           _contactRow(
                             icon: Icons.phone_rounded,
                             label: ownerProfile!['phone'],
-                            color: const Color(0xFF51CF66),
+                            color: AppTheme.foundColor,
                             onTap: () => _copyToClipboard(
                                 ownerProfile!['phone'],
                                 'Phone number copied'),
@@ -257,13 +256,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     if (!post.isResolved)
                       _actionButton(
                         label: 'Mark as Resolved ✓',
-                        color: const Color(0xFF51CF66),
+                        color: AppTheme.foundColor,
                         onTap: _markResolved,
                       ),
                     const SizedBox(height: 12),
                     _actionButton(
                       label: 'Delete Post',
-                      color: const Color(0xFFFF6B6B),
+                      color: AppTheme.lostColor,
                       outlined: true,
                       onTap: _confirmDelete,
                     ),
@@ -294,14 +293,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       title: 'Mark as Resolved?',
       message: 'This will let others know the item has been recovered.',
       confirmLabel: 'Yes, mark resolved',
-      confirmColor: const Color(0xFF51CF66),
+      confirmColor: AppTheme.foundColor,
     );
     if (confirm == true) {
       await postCtrl.markResolved(post.id);
       Get.back();
       Get.snackbar('Done!', 'Post marked as resolved',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFF51CF66),
+          backgroundColor: AppTheme.foundColor,
           colorText: Colors.white,
           margin: const EdgeInsets.all(16));
     }
@@ -312,7 +311,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       title: 'Delete Post?',
       message: 'This cannot be undone.',
       confirmLabel: 'Delete',
-      confirmColor: const Color(0xFFFF6B6B),
+      confirmColor: AppTheme.lostColor,
     );
     if (confirm == true) {
       await postCtrl.deletePost(post.id);
@@ -369,7 +368,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     width: double.infinity,
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(14),
       boxShadow: [
         BoxShadow(

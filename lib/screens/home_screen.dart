@@ -1,7 +1,9 @@
+import 'package:findify/screens/widgets/skeleton_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/post_controller.dart';
+import '../core/app_theme.dart';
 import 'add_post_screen.dart';
 import 'widgets/filter_bar.dart';
 import 'widgets/post_card.dart';
@@ -15,14 +17,14 @@ class HomeScreen extends StatelessWidget {
     final authCtrl = Get.find<AuthController>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
             // ── Top bar ──────────────────────────────────
             Padding(
               padding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: Row(
                 children: [
                   Column(
@@ -50,12 +52,12 @@ class HomeScreen extends StatelessWidget {
 
             // ── Search bar ───────────────────────────────
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: Colors.grey.shade900),
                 ),
                 child: TextField(
                   onChanged: (v) => postCtrl.searchQuery.value = v,
@@ -65,12 +67,12 @@ class HomeScreen extends StatelessWidget {
                     prefixIcon:
                     Icon(Icons.search, color: Colors.grey[400]),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // ── Filter bar ───────────────────────────────
             const Padding(
@@ -78,15 +80,13 @@ class HomeScreen extends StatelessWidget {
               child: Align(
                   alignment: Alignment.centerLeft, child: FilterBar()),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // ── Post list ────────────────────────────────
             Expanded(
               child: Obx(() {
                 if (postCtrl.isLoading.value) {
-                  return const Center(
-                      child: CircularProgressIndicator(
-                          color: Color(0xFF4F46E5)));
+                  return const FeedSkeleton();
                 }
 
                 if (postCtrl.errorMessage.value.isNotEmpty) {
@@ -130,9 +130,9 @@ class HomeScreen extends StatelessWidget {
 
                 return RefreshIndicator(
                   onRefresh: postCtrl.fetchPosts,
-                  color: const Color(0xFF4F46E5),
+                  color: AppTheme.primary,
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     itemCount: postCtrl.filteredPosts.length,
                     itemBuilder: (_, i) {
                       final post = postCtrl.filteredPosts[i];
@@ -156,16 +156,16 @@ class HomeScreen extends StatelessWidget {
           final created = await Get.to(() => const AddPostScreen());
           if (created == true) {
             Get.snackbar(
-              'Posted!',
+              'Successfully Posted!',
               'Your item has been added to the feed',
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: const Color(0xFF51CF66),
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: AppTheme.foundColor,
               colorText: Colors.white,
-              margin: const EdgeInsets.all(16),
+              margin: const EdgeInsets.all(12),
             );
           }
         },
-        backgroundColor: const Color(0xFF4F46E5),
+        backgroundColor: AppTheme.primary,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text('Add Post',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
