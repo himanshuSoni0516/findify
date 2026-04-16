@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // ── Brand colors ──────────────────────────────────────────
-  static const primary    = Color(0xFF4F46E5);
-  static const lostColor  = Color(0xFFFF6B6B);
-  static const foundColor = Color(0xFF51CF66);
+  static const primary    = Colors.blueAccent;
+  static const lostColor  = Colors.red;
+  static const foundColor = Colors.lightGreen;
 
   // ── Light theme ───────────────────────────────────────────
   static final light = ThemeData(
@@ -15,7 +15,7 @@ class AppTheme {
       brightness: Brightness.light,
     ),
     scaffoldBackgroundColor: const Color(0xFFF5F5F5),
-    fontFamily: 'Roboto',
+    fontFamily: 'Fredoka',
     cardColor: Colors.white,
     dividerColor: Colors.grey.shade200,
 
@@ -28,7 +28,7 @@ class AppTheme {
         color: Colors.black,
         fontSize: 18,
         fontWeight: FontWeight.w700,
-        fontFamily: 'Roboto',
+        fontFamily: 'Fredoka',
       ),
     ),
 
@@ -80,7 +80,7 @@ class AppTheme {
       brightness: Brightness.dark,
     ),
     scaffoldBackgroundColor: const Color(0xFF0F0F0F),
-    fontFamily: 'Roboto',
+    fontFamily: 'Fredoka',
     cardColor: const Color(0xFF1E1E1E),
     dividerColor: Colors.white12,
 
@@ -93,7 +93,7 @@ class AppTheme {
         color: Colors.white,
         fontSize: 18,
         fontWeight: FontWeight.w700,
-        fontFamily: 'Roboto',
+        fontFamily: 'Fredoka',
       ),
     ),
 

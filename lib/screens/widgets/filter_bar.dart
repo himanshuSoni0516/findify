@@ -27,19 +27,19 @@ class FilterBar extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             margin: const EdgeInsets.only(right: 10),
             padding:
-            const EdgeInsets.symmetric(horizontal: 26, vertical: 6),
+            const EdgeInsets.symmetric(horizontal: 26, vertical: 3),
             decoration: BoxDecoration(
               color: isActive ? color : Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(6),
               border: Border.all(
-                color: isActive ? color : Colors.grey.shade900,
+                color: isActive ? color : Colors.grey.shade200,
               ),
             ),
             child: Text(
               labels[f]!,
               style: TextStyle(
                 fontSize: 15,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
                 color: isActive ? Colors.white : Colors.grey[600],
               ),
             ),

@@ -98,9 +98,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black),
@@ -110,7 +110,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             style: TextStyle(
                 color: Colors.black,
                 fontSize: 18,
-                fontWeight: FontWeight.w700)),
+                fontWeight: FontWeight.w500)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -119,7 +119,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Type selector ─────────────────────────────
-            _label('Type *'),
+            _label('Type -'),
             Row(
               children: ['lost', 'found'].map((t) {
                 final isSelected = _type == t;
@@ -135,7 +135,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
                         color: isSelected ? color : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: isSelected ? color : Colors.grey.shade200,
                           width: isSelected ? 2 : 1,
@@ -145,7 +145,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         child: Text(
                           t == 'lost' ? '🔴  Lost' : '🟢  Found',
                           style: TextStyle(
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             fontSize: 15,
                             color: isSelected ? Colors.white : Colors.grey[600],
                           ),
@@ -164,7 +164,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               onTap: _pickImage,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                height: _pickedImage != null ? 200 : 120,
+                height: _pickedImage != null ? 400 : 400,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -183,7 +183,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                       borderRadius: BorderRadius.circular(10),
                       child: Image.file(_pickedImage!,
                           width: double.infinity,
-                          height: 200,
+                          height: 400,
                           fit: BoxFit.cover),
                     ),
                     Positioned(
@@ -221,7 +221,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             const SizedBox(height: 20),
 
             // ── Title ─────────────────────────────────────
-            _label('Title *'),
+            _label('Title -'),
             _inputField(
               controller: _titleCtrl,
               hint: 'e.g. Blue water bottle',
@@ -229,7 +229,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             const SizedBox(height: 16),
 
             // ── Description ───────────────────────────────
-            _label('Description'),
+            _label('Description -'),
             _inputField(
               controller: _descCtrl,
               hint: 'Add details — color, brand, when/where last seen...',
@@ -238,7 +238,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             const SizedBox(height: 16),
 
             // ── Location ──────────────────────────────────
-            _label('Location *'),
+            _label('Location -'),
             _inputField(
               controller: _locationCtrl,
               hint: 'e.g. Library 2nd floor, Canteen',
@@ -308,7 +308,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     padding: const EdgeInsets.only(bottom: 8),
     child: Text(text,
         style:
-        const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
   );
 
   Widget _inputField({

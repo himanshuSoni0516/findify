@@ -36,10 +36,12 @@ class AuthController extends GetxController {
       }
 
       final userId = authData['user']['id'];
+      final refreshToken = authData['refresh_token']; // ADD THIS
       final token = authData['access_token'];
 
       // 2. Save token immediately so next call works
       await StorageService.saveToken(token);
+      await StorageService.saveRefreshToken(refreshToken); // ADD THIS
       await StorageService.saveUserId(userId);
 
       // 3. Insert profile row
@@ -76,6 +78,34 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
+// Refresh token
+  Future<bool> refreshSession() async {
+    final refreshToken = await StorageService.getRefreshToken();
+    if (refreshToken == null || refreshToken.isEmpty) return false;
+
+    try {
+      final res = await ApiClient.post(
+        AppConstants.refreshTokenUrl, // add this constant (see below)
+        {'refresh_token': refreshToken},
+      );
+
+      if (res.statusCode != 200) return false;
+
+      final data = jsonDecode(res.body);
+      final newAccessToken = data['access_token'];
+      final newRefreshToken = data['refresh_token'];
+      final userId = data['user']['id'];
+
+      await StorageService.saveToken(newAccessToken);
+      await StorageService.saveRefreshToken(newRefreshToken);
+      await StorageService.saveUserId(userId);
+
+      await _loadProfile(userId);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   // ── Sign In ──────────────────────────────────────────────
   Future<void> signIn({
@@ -98,9 +128,11 @@ class AuthController extends GetxController {
       }
 
       final token = data['access_token'];
+      final refreshToken = data['refresh_token']; // ADD THIS
       final userId = data['user']['id'];
 
       await StorageService.saveToken(token);
+      await StorageService.saveRefreshToken(refreshToken); // ADD THIS
       await StorageService.saveUserId(userId);
 
       // Fetch profile

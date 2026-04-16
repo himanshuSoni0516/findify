@@ -62,18 +62,18 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         slivers: [
           // ── App bar with image ──────────────────────────
           SliverAppBar(
-            expandedHeight: post.imageUrl != null ? 280 : 120,
+            expandedHeight: post.imageUrl != null ? 400 : 400,
             pinned: true,
             backgroundColor: Colors.white,
             leading: GestureDetector(
               onTap: () => Get.back(),
               child: Container(
                 margin: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.arrow_back, color: Colors.black),
+                child: const Icon(Icons.arrow_back,),
               ),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -94,7 +94,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     isLost
                         ? Icons.search_rounded
                         : Icons.volunteer_activism_rounded,
-                    size: 72,
+                    size: 100,
                     color: typeColor.withOpacity(0.4),
                   ),
                 ),
@@ -105,7 +105,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           // ── Content ─────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -118,7 +118,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       ),
                       if (post.isResolved) ...[
                         const SizedBox(width: 8),
-                        _badge('RESOLVED', Colors.blue),
+                        _badge('RESOLVED', Colors.blueAccent),
                       ],
                       const Spacer(),
                       Text(
@@ -128,27 +128,26 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
 
                   // Title
                   Text(
                     post.title,
                     style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
+                        fontSize: 28, fontWeight: FontWeight.w500),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 5),
 
                   // Location chip
                   Row(
                     children: [
                       Icon(Icons.location_on_rounded,
-                          size: 20, color: typeColor),
+                          size: 20, color: Colors.red),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           post.location,
                           style: TextStyle(
-                              fontSize: 18, color: Colors.grey[700]),
+                              fontSize: 20, color: Colors.grey[700]),
                         ),
                       ),
                     ],
@@ -162,9 +161,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       child: Text(
                         post.description,
                         style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 16,
                             color: Colors.grey[800],
-                            height: 1.6),
+                            ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -198,7 +197,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                     .toUpperCase(),
                                 style: const TextStyle(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w500,
                                   color: AppTheme.primary,
                                 ),
                               ),
@@ -212,8 +211,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                   Text(
                                     ownerProfile!['name'] ?? '',
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 15),
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 16),
                                   ),
                                   if (ownerProfile!['course'] !=
                                       null &&
@@ -222,7 +221,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                     Text(
                                       '${ownerProfile!['course']} · ${ownerProfile!['semester'] ?? ''}',
                                       style: TextStyle(
-                                          fontSize: 12,
+                                          fontSize: 14,
                                           color: Colors.grey[500]),
                                     ),
                                 ],
@@ -231,11 +230,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           ],
                         ),
 
-                        // Phone (only show if not your own post)
-                        if (!isOwner &&
-                            ownerProfile!['phone'] != null &&
-                            (ownerProfile!['phone'] as String)
-                                .isNotEmpty) ...[
+                        // Contact Info (Phone & Email)
+                        if (ownerProfile!['phone'] != null &&
+                            (ownerProfile!['phone'] as String).isNotEmpty) ...[
                           const Divider(height: 24),
                           _contactRow(
                             icon: Icons.phone_rounded,
@@ -244,6 +241,23 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             onTap: () => _copyToClipboard(
                                 ownerProfile!['phone'],
                                 'Phone number copied'),
+                          ),
+                        ],
+
+                        if (ownerProfile!['email'] != null &&
+                            (ownerProfile!['email'] as String).isNotEmpty) ...[
+                          if (ownerProfile!['phone'] == null ||
+                              (ownerProfile!['phone'] as String).isEmpty)
+                            const Divider(height: 24)
+                          else
+                            const SizedBox(height: 12),
+                          _contactRow(
+                            icon: Icons.email_rounded,
+                            label: ownerProfile!['email'],
+                            color: Colors.blue,
+                            onTap: () => _copyToClipboard(
+                                ownerProfile!['email'],
+                                'Email address copied'),
                           ),
                         ],
                       ],
@@ -283,7 +297,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   void _copyToClipboard(String text, String message) {
     Clipboard.setData(ClipboardData(text: text));
     Get.snackbar('Copied', message,
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 2));
   }
@@ -299,7 +313,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       await postCtrl.markResolved(post.id);
       Get.back();
       Get.snackbar('Done!', 'Post marked as resolved',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           backgroundColor: AppTheme.foundColor,
           colorText: Colors.white,
           margin: const EdgeInsets.all(16));
@@ -317,7 +331,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       await postCtrl.deletePost(post.id);
       Get.back();
       Get.snackbar('Deleted', 'Your post has been removed',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           margin: const EdgeInsets.all(16));
     }
   }
@@ -361,7 +375,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     padding: const EdgeInsets.only(bottom: 10),
     child: Text(text,
         style: const TextStyle(
-            fontSize: 16, fontWeight: FontWeight.w700)),
+            fontSize: 16, fontWeight: FontWeight.w500)),
   );
 
   Widget _card({required Widget child}) => Container(
@@ -389,8 +403,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     ),
     child: Text(label,
         style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
             color: color,
             letterSpacing: 0.5)),
   );
@@ -411,15 +425,15 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 18),
+              child: Icon(icon, color: color, size: 30),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(label,
                   style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w500)),
+                      fontSize: 16, fontWeight: FontWeight.w500)),
             ),
-            Icon(Icons.copy_rounded, size: 16, color: Colors.grey[400]),
+            Icon(Icons.copy_rounded, size: 20, color: Colors.grey[400]),
           ],
         ),
       );
@@ -439,23 +453,23 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           style: OutlinedButton.styleFrom(
             side: BorderSide(color: color, width: 1.5),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(8)),
           ),
           child: Text(label,
               style: TextStyle(
-                  color: color, fontWeight: FontWeight.w600)),
+                  color: color, fontWeight: FontWeight.w500)),
         )
             : ElevatedButton(
           onPressed: onTap,
           style: ElevatedButton.styleFrom(
             backgroundColor: color,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(8)),
           ),
           child: Text(label,
               style: const TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.w600)),
+                  fontWeight: FontWeight.w500)),
         ),
       );
 

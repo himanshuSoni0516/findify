@@ -1,3 +1,4 @@
+import 'package:findify/screens/widgets/gradient_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
@@ -17,109 +18,164 @@ class _LoginScreenState extends State<LoginScreen> {
   final auth = Get.find<AuthController>();
 
   @override
+  void dispose() {
+    _emailCtrl.dispose();
+    _passCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 40),
-              // Header
-              const Text('Welcome back 👋',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Text('Log in to find your lost items',
-                  style: TextStyle(fontSize: 15, color: Colors.grey[600])),
-              const SizedBox(height: 40),
-
-              // Email field
-              _buildLabel('Email'),
-              _buildTextField(
-                controller: _emailCtrl,
-                hint: 'you@college.edu',
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 20),
-
-              // Password field
-              _buildLabel('Password'),
-              _buildTextField(
-                controller: _passCtrl,
-                hint: '••••••••',
-                obscure: _obscure,
-                suffix: IconButton(
-                  icon: Icon(
-                    _obscure ? Icons.visibility_off : Icons.visibility,
-                    color: Colors.grey,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Logo Section
+                Center(
+                  child: Image.asset(
+                    "assets/Findify_rounded_logo.png",
+                    width: 100,
+                    height: 100,
                   ),
-                  onPressed: () => setState(() => _obscure = !_obscure),
                 ),
-              ),
-              const SizedBox(height: 12),
+                const SizedBox(height: 32),
 
-              // Error message
-              Obx(() => auth.errorMessage.value.isNotEmpty
-                  ? Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.shade200),
-                ),
-                child: Text(auth.errorMessage.value,
-                    style: TextStyle(color: Colors.red[700], fontSize: 13)),
-              )
-                  : const SizedBox()),
-
-              const SizedBox(height: 28),
-
-              // Login button
-              Obx(() => SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: auth.isLoading.value ? null : _login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primary,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                // Header
+                Text(
+                  'Welcome Back',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.onSurface,
                   ),
-                  child: auth.isLoading.value
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Log In',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white)),
                 ),
-              )),
+                const SizedBox(height: 8),
+                Text(
+                  'Log in to find your lost items',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w400,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 48),
 
-              const SizedBox(height: 24),
+                // Email field
+                _buildLabel('Email Address'),
+                TextField(
+                  controller: _emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    hintText: 'email address',
+                    prefixIcon: Icon(Icons.email_outlined, size: 22),
+                  ),
+                ),
+                const SizedBox(height: 20),
 
-              // Sign up link
-              Center(
-                child: GestureDetector(
-                  onTap: () => Get.toNamed('/signup'),
-                  child: RichText(
-                    text: const TextSpan(
-                      text: "Don't have an account? ",
-                      style: TextStyle(color: Colors.grey),
-                      children: [
-                        TextSpan(
-                          text: 'Sign up',
-                          style: TextStyle(
-                              color: AppTheme.primary,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ],
+                // Password field
+                _buildLabel('Password'),
+                TextField(
+                  controller: _passCtrl,
+                  obscureText: _obscure,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _login(),
+                  decoration: InputDecoration(
+                    hintText: 'password',
+                    prefixIcon: const Icon(Icons.lock_outline, size: 22),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscure ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                        size: 20,
+                      ),
+                      onPressed: () => setState(() => _obscure = !_obscure),
                     ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+
+                // Error message
+                Obx(() => AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: auth.errorMessage.value.isNotEmpty
+                      ? Container(
+                    key: ValueKey(auth.errorMessage.value),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.error.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: colorScheme.error.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, size: 18, color: colorScheme.error),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            auth.errorMessage.value,
+                            style: TextStyle(color: colorScheme.error, fontSize: 13),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                      : const SizedBox.shrink(),
+                )),
+
+                const SizedBox(height: 32),
+
+                // Login button
+                Obx(() => SizedBox(
+                  height: 56,
+                  child: GradientButton(
+                    onPressed: auth.isLoading.value ? null : _login,
+                    isLoading: auth.isLoading.value,
+                    borderRadius: 12,
+                    child: const Text(
+                      'Log In',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+                )),
+
+                const SizedBox(height: 24),
+
+                // Sign up link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Don't have an account? ",
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
+                    ),
+                    TextButton(
+                      onPressed: () => Get.toNamed('/signup'),
+                      child: const Text(
+                        'Sign up',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -127,6 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _login() {
+    FocusScope.of(context).unfocus();
     if (_emailCtrl.text.trim().isEmpty || _passCtrl.text.isEmpty) {
       auth.errorMessage.value = 'Please fill in all fields';
       return;
@@ -138,37 +195,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildLabel(String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Text(text,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+    padding: const EdgeInsets.only(left: 4, bottom: 8),
+    child: Text(
+      text,
+      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+    ),
   );
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    TextInputType keyboardType = TextInputType.text,
-    bool obscure = false,
-    Widget? suffix,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        obscureText: obscure,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.grey[400]),
-          border: InputBorder.none,
-          contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          suffixIcon: suffix,
-        ),
-      ),
-    );
-  }
 }

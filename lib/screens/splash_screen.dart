@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
+import '../core/storage_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,8 +20,24 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkAuth() async {
     await Future.delayed(const Duration(seconds: 2));
     final auth = Get.find<AuthController>();
-    final loggedIn = await auth.isLoggedIn();
-    Get.offAllNamed(loggedIn ? '/home' : '/login');
+
+    final hasToken = await auth.isLoggedIn();
+
+    if (!hasToken) {
+      Get.offAllNamed('/login');
+      return;
+    }
+
+    // Token exists but may be expired — try to refresh it
+    final refreshed = await auth.refreshSession();
+
+    if (refreshed) {
+      Get.offAllNamed('/home');
+    } else {
+      // Refresh failed (token too old or invalid) — clear stale data
+      await StorageService.clearAll();
+      Get.offAllNamed('/login');
+    }
   }
 
   @override
@@ -31,22 +48,14 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: const Icon(Icons.search_rounded,
-                  size: 64, color: Colors.white),
-            ),
+            Image.asset("assets/Findify_rounded_logo.png", width: 200),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Findify',
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.grey[500],
                 letterSpacing: 1.5,
               ),
             ),
@@ -55,11 +64,11 @@ class _SplashScreenState extends State<SplashScreen> {
               'Lost & Found — College Edition',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.grey[500],
               ),
             ),
             const SizedBox(height: 48),
-            const CircularProgressIndicator(color: Colors.white54),
+            CircularProgressIndicator(color: Colors.grey[500]),
           ],
         ),
       ),

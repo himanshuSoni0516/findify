@@ -32,25 +32,28 @@ class PostCard extends StatelessWidget {
           children: [
             // Image (if exists)
             if (post.imageUrl != null)
-              ClipRRect(
-                borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(12)),
-                child: Image.network(
-                  post.imageUrl!,
-                  height: 160,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    height: 160,
-                    color: Colors.grey[100],
-                    child: const Icon(Icons.image_not_supported,
-                        color: Colors.grey),
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: ClipRRect(
+                  borderRadius:
+                  const BorderRadius.all( Radius.circular(6)),
+                  child: Image.network(
+                    post.imageUrl!,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      height: 200,
+                      color: Colors.grey[100],
+                      child: const Icon(Icons.image_not_supported,
+                          color: Colors.grey),
+                    ),
                   ),
                 ),
               ),
 
             Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -71,21 +74,21 @@ class PostCard extends StatelessWidget {
                       Text(
                         _timeAgo(post.createdAt),
                         style:
-                        TextStyle(fontSize: 11, color: Colors.grey[500]),
+                        TextStyle(fontSize: 14, color: Colors.grey[500]),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 5),
 
                   // Title
                   Text(
                     post.title,
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w700),
+                        fontSize: 18, fontWeight: FontWeight.w500),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 5),
 
                   // Description
                   Text(
@@ -94,7 +97,7 @@ class PostCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 5),
 
                   // Location
                   Row(
@@ -126,13 +129,13 @@ class PostCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         label,
         style: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             color: color,
             letterSpacing: 0.5),
       ),

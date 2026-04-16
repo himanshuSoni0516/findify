@@ -26,10 +26,10 @@ class MyPostCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.04),
@@ -41,18 +41,18 @@ class MyPostCard extends StatelessWidget {
           children: [
             // Thumbnail or icon
             ClipRRect(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
               child: post.imageUrl != null
                   ? Image.network(
                 post.imageUrl!,
-                width: 64,
-                height: 64,
+                width: 75,
+                height: 75,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => _placeholder(typeColor),
               )
                   : _placeholder(typeColor),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 5),
 
             // Info
             Expanded(
@@ -64,14 +64,14 @@ class MyPostCard extends StatelessWidget {
                       _badge(isLost ? 'LOST' : 'FOUND', typeColor),
                       if (post.isResolved) ...[
                         const SizedBox(width: 6),
-                        _badge('RESOLVED', Colors.grey),
+                        _badge('RESOLVED', Colors.blueAccent),
                       ],
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 5),
                   Text(post.title,
                       style: const TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 14),
+                          fontWeight: FontWeight.w500, fontSize: 14),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 2),
@@ -86,9 +86,11 @@ class MyPostCard extends StatelessWidget {
 
             // Actions menu
             PopupMenuButton<String>(
+              color: Theme.of(context).cardColor,
+              elevation: 5,
               icon: Icon(Icons.more_vert, color: Colors.grey[400]),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(8)),
               onSelected: (val) {
                 if (val == 'resolve' && onMarkResolved != null) {
                   onMarkResolved!();
@@ -126,8 +128,8 @@ class MyPostCard extends StatelessWidget {
   }
 
   Widget _placeholder(Color color) => Container(
-    width: 64,
-    height: 64,
+    width: 75,
+    height: 75,
     color: color.withOpacity(0.08),
     child:
     Icon(Icons.inventory_2_outlined, color: color.withOpacity(0.5)),
@@ -135,15 +137,15 @@ class MyPostCard extends StatelessWidget {
 
   Widget _badge(String label, Color color) => Container(
     padding:
-    const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+    const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
     decoration: BoxDecoration(
       color: color.withOpacity(0.12),
-      borderRadius: BorderRadius.circular(5),
+      borderRadius: BorderRadius.circular(2),
     ),
     child: Text(label,
         style: TextStyle(
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
             color: color,
             letterSpacing: 0.3)),
   );

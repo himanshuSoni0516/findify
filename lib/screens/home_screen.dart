@@ -2,20 +2,23 @@ import 'package:findify/screens/widgets/skeleton_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
+import '../controllers/notification_controller.dart';
 import '../controllers/post_controller.dart';
 import '../core/app_theme.dart';
 import 'add_post_screen.dart';
+import 'notifications_screen.dart';
 import 'widgets/filter_bar.dart';
 import 'widgets/post_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+
   @override
   Widget build(BuildContext context) {
     final postCtrl = Get.find<PostController>();
     final authCtrl = Get.find<AuthController>();
-
+    postCtrl.fetchPosts();
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -24,16 +27,19 @@ class HomeScreen extends StatelessWidget {
             // ── Top bar ──────────────────────────────────
             Padding(
               padding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              const EdgeInsets.all(12),
               child: Row(
                 children: [
+                  Image.asset("assets/Findify_rounded_logo.png",height: 40,),
+                  const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Obx(() => Text(
-                        'Hey, ${authCtrl.currentUser.value?.name.split(' ').first ?? 'there'} 👋',
+                        'Hi, ${authCtrl.currentUser.value?.name.split(' ')
+                            .first ?? 'there'} 👋',
                         style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                            fontSize: 20, fontWeight: FontWeight.w500),
                       )),
                       Text('Find what you\'re looking for',
                           style: TextStyle(
@@ -41,11 +47,36 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
-                  IconButton(
-                    onPressed: () => authCtrl.signOut(),
-                    icon: const Icon(Icons.logout_rounded),
-                    tooltip: 'Logout',
-                  ),
+                  Row(
+                    children: [
+                      Obx(() {
+                        final notifCtrl = Get.find<NotificationController>();
+                        final unread = notifCtrl.unreadCount.value;
+
+                        return IconButton(
+                          onPressed: () {
+                            Get.to(() => const NotificationsScreen());
+                          },
+                          icon: Badge(
+                            isLabelVisible: unread > 0,
+                            label: Text(
+                              unread > 9 ? '9+' : '$unread',
+                              style: const TextStyle(fontSize: 10),
+                            ),
+                            child: const Icon(Icons.notifications_none_outlined,
+                              size: 30,),
+                          ),
+                          tooltip: 'Notifications',
+                        );
+                      }),
+                      const SizedBox(width: 12),
+                      IconButton(
+                        onPressed: () => (),
+                        icon: const Icon(Icons.dark_mode_outlined, size: 30),
+                        tooltip: 'Theme switch',
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),
@@ -53,22 +84,44 @@ class HomeScreen extends StatelessWidget {
             // ── Search bar ───────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade900),
+              child: TextField(
+                onChanged: (v) => postCtrl.searchQuery.value = v,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
-                child: TextField(
-                  onChanged: (v) => postCtrl.searchQuery.value = v,
-                  decoration: InputDecoration(
-                    hintText: 'Search by title, keyword, location...',
-                    hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-                    prefixIcon:
-                    Icon(Icons.search, color: Colors.grey[400]),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: InputDecoration(
+                  hintText: 'Search',
+                  hintStyle: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white.withOpacity(0.3)
+                        : Colors.black.withOpacity(0.3),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
                   ),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white.withOpacity(0.35)
+                        : Colors.black.withOpacity(0.35),
+                    size: 22,
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),
               ),
             ),
@@ -151,24 +204,82 @@ class HomeScreen extends StatelessWidget {
       ),
 
       // ── FAB — Add post ───────────────────────────────────
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: _GradientFAB(
         onPressed: () async {
           final created = await Get.to(() => const AddPostScreen());
           if (created == true) {
+            Get.find<NotificationController>().fetchNotifications();
             Get.snackbar(
-              'Successfully Posted!',
+              'Posted!',
               'Your item has been added to the feed',
-              snackPosition: SnackPosition.TOP,
+              snackPosition: SnackPosition.BOTTOM,
               backgroundColor: AppTheme.foundColor,
               colorText: Colors.white,
-              margin: const EdgeInsets.all(12),
+              margin: const EdgeInsets.all(16),
             );
           }
         },
-        backgroundColor: AppTheme.primary,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Add Post',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+      ),
+    );
+  }
+}
+class _GradientFAB extends StatelessWidget {
+  final VoidCallback onPressed;
+  final String label;
+  final IconData icon;
+  final List<Color> colors;
+
+  const _GradientFAB({
+    required this.onPressed,
+    this.label = 'Add Post',
+    this.icon = Icons.add,
+    this.colors = const [Color(0xFF4898AB), Color(0xFF90D46C)],
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: colors,
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: colors.first.withOpacity(0.4),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(12),
+          splashColor: Colors.white.withOpacity(0.2),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
