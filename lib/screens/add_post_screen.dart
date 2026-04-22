@@ -103,202 +103,204 @@ class _AddPostScreenState extends State<AddPostScreen> {
         backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
+          icon: const Icon(Icons.close, ),
           onPressed: () => Get.back(),
         ),
         title: const Text('New Post',
             style: TextStyle(
-                color: Colors.black,
                 fontSize: 18,
                 fontWeight: FontWeight.w500)),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Type selector ─────────────────────────────
-            _label('Type -'),
-            Row(
-              children: ['lost', 'found'].map((t) {
-                final isSelected = _type == t;
-                final color = t == 'lost'
-                    ? const Color(0xFFFF6B6B)
-                    : const Color(0xFF51CF66);
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _type = t),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: EdgeInsets.only(right: t == 'lost' ? 8 : 0),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        color: isSelected ? color : Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isSelected ? color : Colors.grey.shade200,
-                          width: isSelected ? 2 : 1,
+      body: Container(
+        decoration: BoxDecoration(gradient: AppTheme.background(context)),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Type selector ─────────────────────────────
+              _label('Type -'),
+              Row(
+                children: ['lost', 'found'].map((t) {
+                  final isSelected = _type == t;
+                  final color = t == 'lost'
+                      ? const Color(0xFFFF6B6B)
+                      : const Color(0xFF51CF66);
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _type = t),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        margin: EdgeInsets.only(right: t == 'lost' ? 8 : 0),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: isSelected ? color : Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected ? color : Colors.grey.shade200,
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            t == 'lost' ? 'Lost' : 'Found',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                              color: isSelected ? Colors.white : Colors.grey[600],
+                            ),
+                          ),
                         ),
                       ),
-                      child: Center(
-                        child: Text(
-                          t == 'lost' ? '🔴  Lost' : '🟢  Found',
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+
+              // ── Image picker ──────────────────────────────
+              _label('Photo (optional)'),
+              GestureDetector(
+                onTap: _pickImage,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: _pickedImage != null ? 400 : 400,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: _pickedImage != null
+                          ? AppTheme.primary
+                          : Colors.grey.shade200,
+                      width: _pickedImage != null ? 2 : 1,
+                    ),
+                  ),
+                  child: _pickedImage != null
+                      ? Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.file(_pickedImage!,
+                            width: double.infinity,
+                            height: 400,
+                            fit: BoxFit.cover),
+                      ),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: GestureDetector(
+                          onTap: () =>
+                              setState(() => _pickedImage = null),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.black54,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.close,
+                                color: Colors.white, size: 16),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                      : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_photo_alternate_rounded,
+                          size: 36, color: Colors.grey[400]),
+                      const SizedBox(height: 8),
+                      Text('Tap to add a photo',
                           style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                            color: isSelected ? Colors.white : Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                    ),
+                              color: Colors.grey[500], fontSize: 13)),
+                    ],
                   ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 20),
+                ),
+              ),
+              const SizedBox(height: 20),
 
-            // ── Image picker ──────────────────────────────
-            _label('Photo (optional)'),
-            GestureDetector(
-              onTap: _pickImage,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                height: _pickedImage != null ? 400 : 400,
-                width: double.infinity,
+              // ── Title ─────────────────────────────────────
+              _label('Title -'),
+              _inputField(
+                controller: _titleCtrl,
+                hint: 'e.g. Blue water bottle',
+              ),
+              const SizedBox(height: 16),
+
+              // ── Description ───────────────────────────────
+              _label('Description -'),
+              _inputField(
+                controller: _descCtrl,
+                hint: 'Add details — color, brand, when/where last seen...',
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+
+              // ── Location ──────────────────────────────────
+              _label('Location -'),
+              _inputField(
+                controller: _locationCtrl,
+                hint: 'e.g. Library 2nd floor, Canteen',
+                prefixIcon: Icons.location_on_outlined,
+              ),
+              const SizedBox(height: 32),
+
+              // ── Error ─────────────────────────────────────
+              Obx(() => postCtrl.errorMessage.value.isNotEmpty
+                  ? Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: _pickedImage != null
-                        ? AppTheme.primary
-                        : Colors.grey.shade200,
-                    width: _pickedImage != null ? 2 : 1,
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Text(postCtrl.errorMessage.value,
+                    style:
+                    TextStyle(color: Colors.red[700], fontSize: 13)),
+              )
+                  : const SizedBox()),
+
+              // ── Submit button ─────────────────────────────
+              Obx(() => SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: postCtrl.isUploading.value ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
-                ),
-                child: _pickedImage != null
-                    ? Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.file(_pickedImage!,
-                          width: double.infinity,
-                          height: 400,
-                          fit: BoxFit.cover),
-                    ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: GestureDetector(
-                        onTap: () =>
-                            setState(() => _pickedImage = null),
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Colors.black54,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.close,
-                              color: Colors.white, size: 16),
-                        ),
+                  child: postCtrl.isUploading.value
+                      ? const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2),
                       ),
-                    ),
-                  ],
-                )
-                    : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add_photo_alternate_rounded,
-                        size: 36, color: Colors.grey[400]),
-                    const SizedBox(height: 8),
-                    Text('Tap to add a photo',
-                        style: TextStyle(
-                            color: Colors.grey[500], fontSize: 13)),
-                  ],
+                      SizedBox(width: 12),
+                      Text('Uploading...',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600)),
+                    ],
+                  )
+                      : const Text('Post Item',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white)),
                 ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // ── Title ─────────────────────────────────────
-            _label('Title -'),
-            _inputField(
-              controller: _titleCtrl,
-              hint: 'e.g. Blue water bottle',
-            ),
-            const SizedBox(height: 16),
-
-            // ── Description ───────────────────────────────
-            _label('Description -'),
-            _inputField(
-              controller: _descCtrl,
-              hint: 'Add details — color, brand, when/where last seen...',
-              maxLines: 3,
-            ),
-            const SizedBox(height: 16),
-
-            // ── Location ──────────────────────────────────
-            _label('Location -'),
-            _inputField(
-              controller: _locationCtrl,
-              hint: 'e.g. Library 2nd floor, Canteen',
-              prefixIcon: Icons.location_on_outlined,
-            ),
-            const SizedBox(height: 32),
-
-            // ── Error ─────────────────────────────────────
-            Obx(() => postCtrl.errorMessage.value.isNotEmpty
-                ? Container(
-              padding: const EdgeInsets.all(12),
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.shade200),
-              ),
-              child: Text(postCtrl.errorMessage.value,
-                  style:
-                  TextStyle(color: Colors.red[700], fontSize: 13)),
-            )
-                : const SizedBox()),
-
-            // ── Submit button ─────────────────────────────
-            Obx(() => SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: postCtrl.isUploading.value ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primary,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: postCtrl.isUploading.value
-                    ? const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                          color: Colors.white, strokeWidth: 2),
-                    ),
-                    SizedBox(width: 12),
-                    Text('Uploading...',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600)),
-                  ],
-                )
-                    : const Text('Post Item',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white)),
-              ),
-            )),
-            const SizedBox(height: 24),
-          ],
+              )),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );

@@ -6,6 +6,34 @@ class AppTheme {
   static const lostColor  = Colors.red;
   static const foundColor = Colors.lightGreen;
 
+  // ── Gradient backgrounds ──────────────────────────────────
+  static const lightGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFFF3EEFF), // soft lavender
+      Color(0xFFF8F5FF), // near white purple
+      Color(0xFFEDE6FF), // muted violet
+    ],
+    stops: [0.0, 0.5, 1.0],
+  );
+
+  static const darkGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF110D1A), // deep purple-black
+      Color(0xFF0F0D16), // dark violet base
+      Color(0xFF130E1F), // rich dark plum
+    ],
+    stops: [0.0, 0.5, 1.0],
+  );
+
+  static LinearGradient background(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? darkGradient : lightGradient;
+  }
+
   // ── Light theme ───────────────────────────────────────────
   static final light = ThemeData(
     useMaterial3: true,

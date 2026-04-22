@@ -30,151 +30,154 @@ class _LoginScreenState extends State<LoginScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Logo Section
-                Center(
-                  child: Image.asset(
-                    "assets/Findify_rounded_logo.png",
-                    width: 100,
-                    height: 100,
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: BoxDecoration(gradient: AppTheme.background(context)),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Logo Section
+                  Center(
+                    child: Image.asset(
+                      "assets/Findify_rounded_logo.png",
+                      width: 100,
+                      height: 100,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
-                // Header
-                Text(
-                  'Welcome Back',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: colorScheme.onSurface,
+                  // Header
+                  Text(
+                    'Welcome Back',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Log in to find your lost items',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w400,
-                    color: colorScheme.onSurfaceVariant,
+                  const SizedBox(height: 8),
+                  Text(
+                    'Log in to find your lost items',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w400,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 48),
+                  const SizedBox(height: 48),
 
-                // Email field
-                _buildLabel('Email Address'),
-                TextField(
-                  controller: _emailCtrl,
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    hintText: 'email address',
-                    prefixIcon: Icon(Icons.email_outlined, size: 22),
+                  // Email field
+                  _buildLabel('Email Address'),
+                  TextField(
+                    controller: _emailCtrl,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    decoration: const InputDecoration(
+                      hintText: 'email address',
+                      prefixIcon: Icon(Icons.email_outlined, size: 22),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                // Password field
-                _buildLabel('Password'),
-                TextField(
-                  controller: _passCtrl,
-                  obscureText: _obscure,
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) => _login(),
-                  decoration: InputDecoration(
-                    hintText: 'password',
-                    prefixIcon: const Icon(Icons.lock_outline, size: 22),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscure ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey,
-                        size: 20,
+                  // Password field
+                  _buildLabel('Password'),
+                  TextField(
+                    controller: _passCtrl,
+                    obscureText: _obscure,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _login(),
+                    decoration: InputDecoration(
+                      hintText: 'password',
+                      prefixIcon: const Icon(Icons.lock_outline, size: 22),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscure ? Icons.visibility_off : Icons.visibility,
+                          color: Colors.grey,
+                          size: 20,
+                        ),
+                        onPressed: () => setState(() => _obscure = !_obscure),
                       ),
-                      onPressed: () => setState(() => _obscure = !_obscure),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
-                // Error message
-                Obx(() => AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: auth.errorMessage.value.isNotEmpty
-                      ? Container(
-                    key: ValueKey(auth.errorMessage.value),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.error.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: colorScheme.error.withOpacity(0.2)),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.error_outline, size: 18, color: colorScheme.error),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            auth.errorMessage.value,
-                            style: TextStyle(color: colorScheme.error, fontSize: 13),
+                  // Error message
+                  Obx(() => AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: auth.errorMessage.value.isNotEmpty
+                        ? Container(
+                      key: ValueKey(auth.errorMessage.value),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: colorScheme.error.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: colorScheme.error.withOpacity(0.2)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline, size: 18, color: colorScheme.error),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              auth.errorMessage.value,
+                              style: TextStyle(color: colorScheme.error, fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                        : const SizedBox.shrink(),
+                  )),
+
+                  const SizedBox(height: 32),
+
+                  // Login button
+                  Obx(() => SizedBox(
+                    height: 56,
+                    child: GradientButton(
+                      onPressed: auth.isLoading.value ? null : _login,
+                      isLoading: auth.isLoading.value,
+                      borderRadius: 12,
+                      child: const Text(
+                        'Log In',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    )
+                  )),
+
+                  const SizedBox(height: 24),
+
+                  // Sign up link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Don't have an account? ",
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      ),
+                      TextButton(
+                        onPressed: () => Get.toNamed('/signup'),
+                        child: const Text(
+                          'Sign up',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: AppTheme.primary,
                           ),
                         ),
-                      ],
-                    ),
-                  )
-                      : const SizedBox.shrink(),
-                )),
-
-                const SizedBox(height: 32),
-
-                // Login button
-                Obx(() => SizedBox(
-                  height: 56,
-                  child: GradientButton(
-                    onPressed: auth.isLoading.value ? null : _login,
-                    isLoading: auth.isLoading.value,
-                    borderRadius: 12,
-                    child: const Text(
-                      'Log In',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
                       ),
-                    ),
-                  )
-                )),
-
-                const SizedBox(height: 24),
-
-                // Sign up link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Don't have an account? ",
-                      style: TextStyle(color: colorScheme.onSurfaceVariant),
-                    ),
-                    TextButton(
-                      onPressed: () => Get.toNamed('/signup'),
-                      child: const Text(
-                        'Sign up',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: AppTheme.primary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -60,44 +60,50 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
-          // ── App bar with image ──────────────────────────
+          // ── App Bar ──────────────────────────────────────────────────
           SliverAppBar(
-            expandedHeight: post.imageUrl != null ? 400 : 400,
             pinned: true,
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            surfaceTintColor: Colors.transparent,
+            title: Text("Post Details",
+              style: TextStyle(fontSize: 20,
+                fontWeight: FontWeight.w500),),
+            elevation: 0,
+            scrolledUnderElevation: 0.5,
             leading: GestureDetector(
               onTap: () => Get.back(),
               child: Container(
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withOpacity(0.08)
+                      : Colors.black.withOpacity(0.06),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.arrow_back,),
+                child: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 16,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
               ),
             ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: post.imageUrl != null
-                  ? Image.network(
-                post.imageUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: Colors.grey[100],
-                  child: const Icon(Icons.image_not_supported,
-                      size: 48, color: Colors.grey),
-                ),
-              )
-                  : Container(
-                color: typeColor.withOpacity(0.08),
-                child: Center(
-                  child: Icon(
-                    isLost
-                        ? Icons.search_rounded
-                        : Icons.volunteer_activism_rounded,
-                    size: 100,
-                    color: typeColor.withOpacity(0.4),
-                  ),
-                ),
+          ),
+
+// ── Image Section ────────────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(0),
+                child: post.imageUrl != null
+                    ? Image.network(
+                  post.imageUrl!,
+                  height: 400,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _imageFallback(typeColor, isLost),
+                )
+                    : _imageFallback(typeColor, isLost),
               ),
             ),
           ),
@@ -161,7 +167,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       child: Text(
                         post.description,
                         style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 18,
                             color: Colors.grey[800],
                             ),
                       ),
@@ -176,28 +182,29 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         ? const Center(
                       child: Padding(
                         padding: EdgeInsets.all(12),
-                        child: CircularProgressIndicator(
-                            color: AppTheme.primary),
+                        child: CircularProgressIndicator(color: AppTheme.primary),
                       ),
                     )
                         : ownerProfile == null
                         ? Text('Owner info not available',
                         style: TextStyle(color: Colors.grey[500]))
                         : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Name + course
+                        // ── Always show: name + course ──────────
                         Row(
                           children: [
                             CircleAvatar(
                               radius: 24,
-                              backgroundColor: AppTheme.primary.withOpacity(0.1),
+                              backgroundColor:
+                              AppTheme.primary.withOpacity(0.1),
                               child: Text(
                                 (ownerProfile!['name'] as String)
                                     .substring(0, 1)
                                     .toUpperCase(),
                                 style: const TextStyle(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                   color: AppTheme.primary,
                                 ),
                               ),
@@ -205,23 +212,21 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     ownerProfile!['name'] ?? '',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w500,
-                                        fontSize: 16),
+                                        fontSize: 20),
                                   ),
-                                  if (ownerProfile!['course'] !=
-                                      null &&
+                                  if (ownerProfile!['course'] != null &&
                                       (ownerProfile!['course'] as String)
                                           .isNotEmpty)
                                     Text(
-                                      '${ownerProfile!['course']} · ${ownerProfile!['semester'] ?? ''}',
+                                      '${ownerProfile!['course']} · Sem ${ownerProfile!['semester'] ?? ''}',
                                       style: TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 16,
                                           color: Colors.grey[500]),
                                     ),
                                 ],
@@ -230,40 +235,63 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           ],
                         ),
 
-                        // Contact Info (Phone & Email)
-                        if (ownerProfile!['phone'] != null &&
-                            (ownerProfile!['phone'] as String).isNotEmpty) ...[
-                          const Divider(height: 24),
-                          _contactRow(
-                            icon: Icons.phone_rounded,
-                            label: ownerProfile!['phone'],
-                            color: AppTheme.foundColor,
-                            onTap: () => _copyToClipboard(
-                                ownerProfile!['phone'],
-                                'Phone number copied'),
-                          ),
+                        // ── Contact details: only for OTHER user's posts ──
+                        if (!isOwner) ...[
+                          const Divider(height: 28),
+
+                          if (ownerProfile!['phone'] != null &&
+                              (ownerProfile!['phone'] as String)
+                                  .isNotEmpty) ...[
+                            _contactRow(
+                              icon: Icons.phone_rounded,
+                              label: ownerProfile!['phone'],
+                              color: AppTheme.foundColor,
+                              onTap: () => _copyToClipboard(
+                                  ownerProfile!['phone'],
+                                  'Phone number copied'),
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+
+                          // ── "No contact info" fallback ──────────
+                          if ((ownerProfile!['phone'] == null ||
+                              (ownerProfile!['phone'] as String).isEmpty))
+                            Row(
+                              children: [
+                                Icon(Icons.info_outline,
+                                    size: 16, color: Colors.grey[400]),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Owner has not added contact details',
+                                  style: TextStyle(
+                                      fontSize: 13, color: Colors.grey[400]),
+                                ),
+                              ],
+                            ),
                         ],
 
-                        if (ownerProfile!['email'] != null &&
-                            (ownerProfile!['email'] as String).isNotEmpty) ...[
-                          if (ownerProfile!['phone'] == null ||
-                              (ownerProfile!['phone'] as String).isEmpty)
-                            const Divider(height: 24)
-                          else
-                            const SizedBox(height: 12),
-                          _contactRow(
-                            icon: Icons.email_rounded,
-                            label: ownerProfile!['email'],
-                            color: Colors.blue,
-                            onTap: () => _copyToClipboard(
-                                ownerProfile!['email'],
-                                'Email address copied'),
+                        // ── If it IS your post, show a label ─────
+                        if (isOwner) ...[
+                          const Divider(height: 28),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.edit_note_rounded,
+                                  color: Colors.grey[400], size: 22),
+                              const SizedBox(width: 8),
+                              Text(
+                                'You posted this item',
+                                style: TextStyle(
+                                    fontSize: 13, color: Colors.grey[400]),
+                              ),
+                            ],
                           ),
                         ],
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+
+                  const SizedBox(height: 20),
 
                   // ── Owner actions ───────────────────────
                   if (isOwner) ...[
@@ -285,6 +313,38 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   const SizedBox(height: 32),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _imageFallback(Color typeColor, bool isLost) {
+    return Container(
+      height: 200,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: typeColor.withOpacity(0.07),
+        borderRadius: BorderRadius.circular(0),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            isLost
+                ? Icons.search_rounded
+                : Icons.volunteer_activism_rounded,
+            size: 64,
+            color: typeColor.withOpacity(0.35),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            isLost ? 'Lost Item' : 'Found Item',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: typeColor.withOpacity(0.4),
             ),
           ),
         ],
@@ -380,10 +440,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   Widget _card({required Widget child}) => Container(
     width: double.infinity,
-    padding: const EdgeInsets.all(16),
+    padding: const EdgeInsets.all(12),
     decoration: BoxDecoration(
       color: Theme.of(context).cardColor,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(12),
       boxShadow: [
         BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -403,7 +463,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     ),
     child: Text(label,
         style: TextStyle(
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: FontWeight.w500,
             color: color,
             letterSpacing: 0.5)),
@@ -431,7 +491,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             Expanded(
               child: Text(label,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w500)),
+                      fontSize: 18, fontWeight: FontWeight.w500)),
             ),
             Icon(Icons.copy_rounded, size: 20, color: Colors.grey[400]),
           ],

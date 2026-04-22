@@ -16,292 +16,295 @@ class ProfileScreen extends StatelessWidget {
     final postCtrl = Get.find<PostController>();
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: BoxDecoration(gradient: AppTheme.background(context)),
+        child: SafeArea(
+          child: CustomScrollView(
+            slivers: [
 
-            // ── Header ──────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    const Text(
-                      'My Profile',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight
-                          .w600),
-                    ),
-                    const Spacer(),
-                    _LogoutButton(authCtrl: authCtrl),
-                  ],
-                ),
-              ),
-            ),
-
-            // ── Avatar + Info card ───────────────────────────
-            SliverToBoxAdapter(
-              child: Obx(() {
-                final user = authCtrl.currentUser.value;
-                final initial = (user?.name.isNotEmpty == true)
-                    ? user!.name.trim().substring(0, 1).toUpperCase()
-                    : '?';
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        // Avatar
-                        Container(
-                          width: 75,
-                          height: 75,
-                          decoration: BoxDecoration(
-                            color: AppTheme.primary.withOpacity(0.12),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              initial,
-                              style: const TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.w500,
-                                color: AppTheme.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-
-                        // Name + details
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                user?.name ?? 'Unknown',
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1.2,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                              if (user?.course != null && user!.course!.isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Icon(Icons.school_outlined,
-                                        size: 18, color: Colors.grey[500]),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
-                                        '${user.course} · Sem ${user.semester ?? ''}',
-                                        style: TextStyle(
-                                            fontSize: 14, color: Colors
-                                            .grey[500]),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                              if (user?.phone != null && user!.phone!.isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Icon(Icons.phone_outlined,
-                                        size: 18, color: Colors.grey[500]),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
-                                        user.phone!,
-                                        style: TextStyle(
-                                            fontSize: 14, color: Colors
-                                            .grey[500]),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ),
-
-            // ── Stats row ────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Obx(() {
-                final user = authCtrl.currentUser.value;
-                final myPosts = _getMyPosts(postCtrl.posts, user?.id);
-                final active = myPosts.where((p) => !p.isResolved).length;
-                final resolved = myPosts.where((p) => p.isResolved).length;
-
-                return Padding(
+              // ── Header ──────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Row(
                     children: [
-                      _StatCard(
-                        label: 'Total',
-                        value: myPosts.length.toString(),
-                        color: Colors.blueAccent,
-                        icon: Icons.grid_view_outlined,
+                      const Text(
+                        'My Profile',
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight
+                            .w600),
                       ),
-                      const SizedBox(width: 10),
-                      _StatCard(
-                        label: 'Active',
-                        value: active.toString(),
-                        color: AppTheme.lostColor,
-                        icon: Icons.radio_button_checked_rounded,
-                      ),
-                      const SizedBox(width: 10),
-                      _StatCard(
-                        label: 'Resolved',
-                        value: resolved.toString(),
-                        color: AppTheme.foundColor,
-                        icon: Icons.check_circle_outline_rounded,
-                      ),
+                      const Spacer(),
+                      _LogoutButton(authCtrl: authCtrl),
                     ],
                   ),
-                );
-              }),
-            ),
-
-            // ── My Posts header ──────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 12, right: 12, bottom: 12),
-                child: Row(
-                  children: [
-                    const Text(
-                      'My Posts',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight
-                          .w500),
-                    ),
-                    const Spacer(),
-                    Obx(() {
-                      final count = _getMyPosts(
-                          postCtrl.posts, authCtrl.currentUser.value?.id)
-                          .length;
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '$count posts',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: AppTheme.primary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      );
-                    }),
-                  ],
                 ),
               ),
-            ),
 
+              // ── Avatar + Info card ───────────────────────────
+              SliverToBoxAdapter(
+                child: Obx(() {
+                  final user = authCtrl.currentUser.value;
+                  final initial = (user?.name.isNotEmpty == true)
+                      ? user!.name.trim().substring(0, 1).toUpperCase()
+                      : '?';
 
-            // ── Posts list ───────────────────────────────────
-            Obx(() {
-              final myPosts = _getMyPosts(
-                  postCtrl.posts, authCtrl.currentUser.value?.id);
-
-              if (postCtrl.isLoading.value) {
-                return const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.all(48),
-                    child: Center(
-                        child: CircularProgressIndicator(color: AppTheme.primary)),
-                  ),
-                );
-              }
-
-              if (myPosts.isEmpty) {
-                return SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 48),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 72,
-                          height: 72,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            shape: BoxShape.circle,
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
-                          child: Icon(Icons.post_add_rounded,
-                              size: 34, color: Colors.grey[350]),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          // Avatar
+                          Container(
+                            width: 75,
+                            height: 75,
+                            decoration: BoxDecoration(
+                              color: AppTheme.primary.withOpacity(0.12),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                initial,
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppTheme.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+
+                          // Name + details
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  user?.name ?? 'Unknown',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.2,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                                if (user?.course != null && user!.course!.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.school_outlined,
+                                          size: 18, color: Colors.grey[500]),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          '${user.course} · Sem ${user.semester ?? ''}',
+                                          style: TextStyle(
+                                              fontSize: 14, color: Colors
+                                              .grey[500]),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                                if (user?.phone != null && user!.phone!.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.phone_outlined,
+                                          size: 18, color: Colors.grey[500]),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          user.phone!,
+                                          style: TextStyle(
+                                              fontSize: 14, color: Colors
+                                              .grey[500]),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ),
+
+              // ── Stats row ────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Obx(() {
+                  final user = authCtrl.currentUser.value;
+                  final myPosts = _getMyPosts(postCtrl.posts, user?.id);
+                  final active = myPosts.where((p) => !p.isResolved).length;
+                  final resolved = myPosts.where((p) => p.isResolved).length;
+
+                  return Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        _StatCard(
+                          label: 'Total',
+                          value: myPosts.length.toString(),
+                          color: Colors.blueAccent,
+                          icon: Icons.grid_view_outlined,
                         ),
-                        const SizedBox(height: 14),
-                        Text(
-                          "No posts yet",
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[600]),
+                        const SizedBox(width: 10),
+                        _StatCard(
+                          label: 'Active',
+                          value: active.toString(),
+                          color: AppTheme.lostColor,
+                          icon: Icons.radio_button_checked_rounded,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "Your lost & found posts will appear here",
-                          style:
-                          TextStyle(fontSize: 13, color: Colors.grey[400]),
+                        const SizedBox(width: 10),
+                        _StatCard(
+                          label: 'Resolved',
+                          value: resolved.toString(),
+                          color: AppTheme.foundColor,
+                          icon: Icons.check_circle_outline_rounded,
                         ),
                       ],
                     ),
+                  );
+                }),
+              ),
+
+              // ── My Posts header ──────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 12, bottom: 12),
+                  child: Row(
+                    children: [
+                      const Text(
+                        'My Posts',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight
+                            .w500),
+                      ),
+                      const Spacer(),
+                      Obx(() {
+                        final count = _getMyPosts(
+                            postCtrl.posts, authCtrl.currentUser.value?.id)
+                            .length;
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '$count posts',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: AppTheme.primary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ),
+
+
+              // ── Posts list ───────────────────────────────────
+              Obx(() {
+                final myPosts = _getMyPosts(
+                    postCtrl.posts, authCtrl.currentUser.value?.id);
+
+                if (postCtrl.isLoading.value) {
+                  return const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(48),
+                      child: Center(
+                          child: CircularProgressIndicator(color: AppTheme.primary)),
+                    ),
+                  );
+                }
+
+                if (myPosts.isEmpty) {
+                  return SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 48),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 72,
+                            height: 72,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.post_add_rounded,
+                                size: 34, color: Colors.grey[350]),
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            "No posts yet",
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[600]),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Your lost & found posts will appear here",
+                            style:
+                            TextStyle(fontSize: 13, color: Colors.grey[400]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                        (_, i) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: MyPostCard(
+                        post: myPosts[i],
+                        onTap: () => Get.to(
+                              () => const PostDetailScreen(),
+                          arguments: myPosts[i],
+                        ),
+                        onDelete: () =>
+                            _confirmDelete(myPosts[i], postCtrl),
+                        onMarkResolved: myPosts[i].isResolved
+                            ? null
+                            : () => _confirmResolve(myPosts[i], postCtrl),
+                      ),
+                    ),
+                    childCount: myPosts.length,
                   ),
                 );
-              }
+              }),
 
-              return SliverList(
-                delegate: SliverChildBuilderDelegate(
-                      (_, i) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: MyPostCard(
-                      post: myPosts[i],
-                      onTap: () => Get.to(
-                            () => const PostDetailScreen(),
-                        arguments: myPosts[i],
-                      ),
-                      onDelete: () =>
-                          _confirmDelete(myPosts[i], postCtrl),
-                      onMarkResolved: myPosts[i].isResolved
-                          ? null
-                          : () => _confirmResolve(myPosts[i], postCtrl),
-                    ),
-                  ),
-                  childCount: myPosts.length,
-                ),
-              );
-            }),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 40)),
-          ],
+              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+            ],
+          ),
         ),
       ),
     );

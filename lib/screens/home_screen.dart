@@ -20,186 +20,195 @@ class HomeScreen extends StatelessWidget {
     final authCtrl = Get.find<AuthController>();
     postCtrl.fetchPosts();
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // ── Top bar ──────────────────────────────────
-            Padding(
-              padding:
-              const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Image.asset("assets/Findify_rounded_logo.png",height: 40,),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Obx(() => Text(
-                        'Hi, ${authCtrl.currentUser.value?.name.split(' ')
-                            .first ?? 'there'} 👋',
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w500),
-                      )),
-                      Text('Find what you\'re looking for',
-                          style: TextStyle(
-                              fontSize: 13, color: Colors.grey[500])),
-                    ],
-                  ),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      Obx(() {
-                        final notifCtrl = Get.find<NotificationController>();
-                        final unread = notifCtrl.unreadCount.value;
+      backgroundColor: Colors.transparent,
+      body: Container(
+          decoration: BoxDecoration(gradient: AppTheme.background(context)),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // ── Top bar ──────────────────────────────────
+              Padding(
+                padding:
+                const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Image.asset("assets/Findify_rounded_logo.png",height: 40,),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Obx(() => Text(
+                          'Hi, ${authCtrl.currentUser.value?.name.split(' ')
+                              .first ?? 'there'} 👋',
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w500),
+                        )),
+                        Text('Find what you\'re looking for',
+                            style: TextStyle(
+                                fontSize: 13, color: Colors.grey[500])),
+                      ],
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Obx(() {
+                          final notifCtrl = Get.find<NotificationController>();
+                          final unread = notifCtrl.unreadCount.value;
 
-                        return IconButton(
-                          onPressed: () {
-                            Get.to(() => const NotificationsScreen());
-                          },
-                          icon: Badge(
-                            isLabelVisible: unread > 0,
-                            label: Text(
-                              unread > 9 ? '9+' : '$unread',
-                              style: const TextStyle(fontSize: 10),
+                          return IconButton(
+                            onPressed: () {
+                              Get.to(() => const NotificationsScreen());
+                            },
+                            icon: Badge(
+                              isLabelVisible: unread > 0,
+                              label: Text(
+                                unread > 9 ? '9+' : '$unread',
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                              child: const Icon(Icons.notifications_none_outlined,
+                                size: 30,),
                             ),
-                            child: const Icon(Icons.notifications_none_outlined,
-                              size: 30,),
-                          ),
-                          tooltip: 'Notifications',
-                        );
-                      }),
-                      const SizedBox(width: 12),
-                      IconButton(
-                        onPressed: () => (),
-                        icon: const Icon(Icons.dark_mode_outlined, size: 30),
-                        tooltip: 'Theme switch',
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-
-            // ── Search bar ───────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: TextField(
-                onChanged: (v) => postCtrl.searchQuery.value = v,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                            tooltip: 'Notifications',
+                          );
+                        }),
+                        const SizedBox(width: 12),
+                        IconButton(
+                          onPressed: () => (),
+                          icon: const Icon(Icons.dark_mode_outlined, size: 30),
+                          tooltip: 'Theme switch',
+                        ),
+                      ],
+                    )
+                  ],
                 ),
-                decoration: InputDecoration(
-                  hintText: 'Search',
-                  hintStyle: TextStyle(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white.withOpacity(0.3)
-                        : Colors.black.withOpacity(0.3),
+              ),
+
+              // ── Search bar ───────────────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: TextField(
+                  onChanged: (v) => postCtrl.searchQuery.value = v,
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white.withOpacity(0.35)
-                        : Colors.black.withOpacity(0.35),
-                    size: 22,
+                  decoration: InputDecoration(
+                    hintText: 'Search',
+                    hintStyle: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white.withOpacity(0.3)
+                          : Colors.black.withOpacity(0.3),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white.withOpacity(0.35)
+                          : Colors.black.withOpacity(0.35),
+                      size: 22,
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(context).cardColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
                   ),
-                  filled: true,
-                  fillColor: Theme.of(context).cardColor,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            // ── Filter bar ───────────────────────────────
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Align(
-                  alignment: Alignment.centerLeft, child: FilterBar()),
-            ),
-            const SizedBox(height: 12),
+              // ── Filter bar ───────────────────────────────
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Align(
+                    alignment: Alignment.centerLeft, child: FilterBar()),
+              ),
+              const SizedBox(height: 12),
 
-            // ── Post list ────────────────────────────────
-            Expanded(
-              child: Obx(() {
-                if (postCtrl.isLoading.value) {
-                  return const FeedSkeleton();
-                }
+              // ── Post list ────────────────────────────────
+              Expanded(
+                child: Obx(() {
+                  if (postCtrl.isLoading.value) {
+                    return const FeedSkeleton();
+                  }
 
-                if (postCtrl.errorMessage.value.isNotEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.wifi_off_rounded,
-                            size: 48, color: Colors.grey),
-                        const SizedBox(height: 12),
-                        Text(postCtrl.errorMessage.value,
-                            style: const TextStyle(color: Colors.grey)),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: postCtrl.fetchPosts,
-                          child: const Text('Retry'),
-                        ),
-                      ],
+                  if (postCtrl.errorMessage.value.isNotEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.wifi_off_outlined,
+                              size: 48, color: Colors.grey),
+                          const SizedBox(height: 12),
+                          Text(postCtrl.errorMessage.value,
+                              style: const TextStyle(color: Colors.grey)),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: postCtrl.fetchPosts,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (postCtrl.filteredPosts.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.inbox_rounded,
+                              size: 56, color: Colors.grey[300]),
+                          const SizedBox(height: 12),
+                          Text(
+                            postCtrl.searchQuery.value.isNotEmpty
+                                ? 'No posts match your search'
+                                : 'No posts yet. Be the first!',
+                            style: TextStyle(color: Colors.grey[500]),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: postCtrl.fetchPosts,
+                    color: AppTheme.primary,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      itemCount: postCtrl.filteredPosts.length,
+                      itemBuilder: (_, i) {
+                        final post = postCtrl.filteredPosts[i];
+                        return PostCard(
+                          post: post,
+                          onTap: () => Get.toNamed('/post-detail',
+                              arguments: post),
+                        );
+                      },
                     ),
                   );
-                }
-
-                if (postCtrl.filteredPosts.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.inbox_rounded,
-                            size: 56, color: Colors.grey[300]),
-                        const SizedBox(height: 12),
-                        Text(
-                          postCtrl.searchQuery.value.isNotEmpty
-                              ? 'No posts match your search'
-                              : 'No posts yet. Be the first!',
-                          style: TextStyle(color: Colors.grey[500]),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: postCtrl.fetchPosts,
-                  color: AppTheme.primary,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    itemCount: postCtrl.filteredPosts.length,
-                    itemBuilder: (_, i) {
-                      final post = postCtrl.filteredPosts[i];
-                      return PostCard(
-                        post: post,
-                        onTap: () => Get.toNamed('/post-detail',
-                            arguments: post),
-                      );
-                    },
-                  ),
-                );
-              }),
-            ),
-          ],
+                }),
+              ),
+            ],
+          ),
         ),
       ),
 
@@ -249,7 +258,7 @@ class _GradientFAB extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: colors.first.withOpacity(0.4),
-            blurRadius: 12,
+            blurRadius: 8,
             offset: const Offset(0, 4),
           ),
         ],

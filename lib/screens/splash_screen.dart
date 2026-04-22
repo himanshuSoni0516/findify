@@ -1,3 +1,4 @@
+import 'package:findify/core/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
@@ -43,33 +44,36 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset("assets/Findify_rounded_logo.png", width: 200),
-            const SizedBox(height: 24),
-            Text(
-              'Findify',
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[500],
-                letterSpacing: 1.5,
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: BoxDecoration(gradient: AppTheme.background(context)),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset("assets/Findify_rounded_logo.png", width: 150),
+              const SizedBox(height: 24),
+              Text(
+                'Findify',
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[500],
+                  letterSpacing: 1.5,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Lost & Found — College Edition',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
+              const SizedBox(height: 8),
+              Text(
+                'Lost & Found — College Edition',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[500],
+                ),
               ),
-            ),
-            const SizedBox(height: 48),
-            CircularProgressIndicator(color: Colors.grey[500]),
-          ],
+              const SizedBox(height: 48),
+              CircularProgressIndicator(color: Colors.grey[500]),
+            ],
+          ),
         ),
       ),
     );

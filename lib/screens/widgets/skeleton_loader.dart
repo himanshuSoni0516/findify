@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// A shimmer-like animated skeleton — no external package needed.
+// ── Shimmer skeleton box ──────────────────────────────────────
 class SkeletonBox extends StatefulWidget {
   final double width;
   final double height;
@@ -60,52 +60,67 @@ class _SkeletonBoxState extends State<SkeletonBox>
   }
 }
 
-// ── Pre-built skeleton card that matches PostCard layout ─────
+// ── Single card skeleton — vertical layout (image top, content below)
 class PostCardSkeleton extends StatelessWidget {
   const PostCardSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final cardColor = Theme.of(context).cardColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withOpacity(0.06)
+              : Colors.black.withOpacity(0.06),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image placeholder
-          const SkeletonBox(height: 160, radius: 0),
+          // ── Full-width image placeholder ──
+          const ClipRRect(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+            child: SkeletonBox(height: 180, radius: 0),
+          ),
+
+          // ── Content ───────────────────────
           Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(children: [
-                  const SkeletonBox(width: 52, height: 20),
-                  const SizedBox(width: 8),
-                  const SkeletonBox(width: 40, height: 20),
-                  const Spacer(),
-                  SkeletonBox(width: 60, height: 12, radius: 4),
-                ]),
+                // Badges + date row
+                Row(
+                  children: [
+                    const SkeletonBox(width: 52, height: 20, radius: 5),
+                    const SizedBox(width: 6),
+                    const SkeletonBox(width: 72, height: 20, radius: 5),
+                    const Spacer(),
+                    const SkeletonBox(width: 48, height: 12, radius: 4),
+                  ],
+                ),
                 const SizedBox(height: 10),
-                const SkeletonBox(height: 18),
-                const SizedBox(height: 8),
-                const SkeletonBox(height: 13),
-                const SizedBox(height: 4),
-                const SkeletonBox(width: 180, height: 13),
+
+                // Title
+                const SkeletonBox(height: 15, radius: 6),
+                const SizedBox(height: 5),
+                const SkeletonBox(width: 160, height: 15, radius: 6),
                 const SizedBox(height: 10),
-                const SkeletonBox(width: 120, height: 12),
+
+                // Location
+                Row(
+                  children: [
+                    const SkeletonBox(width: 14, height: 14, radius: 7),
+                    const SizedBox(width: 5),
+                    const SkeletonBox(width: 120, height: 12, radius: 4),
+                  ],
+                ),
               ],
             ),
           ),
@@ -115,16 +130,16 @@ class PostCardSkeleton extends StatelessWidget {
   }
 }
 
-// ── Full feed skeleton (3 cards) ─────────────────────────────
+// ── Full feed skeleton ────────────────────────────────────────
 class FeedSkeleton extends StatelessWidget {
   const FeedSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: 3,
+      itemCount: 4,
       itemBuilder: (_, __) => const PostCardSkeleton(),
     );
   }

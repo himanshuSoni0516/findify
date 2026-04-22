@@ -50,6 +50,7 @@ class AuthController extends GetxController {
         {
           'id': userId,
           'name': name,
+          'email': email,
           'course': course ?? '',
           'semester': semester ?? '',
           'phone': phone ?? '',
