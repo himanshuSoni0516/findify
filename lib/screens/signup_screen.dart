@@ -1,3 +1,4 @@
+import 'package:findify/screens/widgets/gradient_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
@@ -20,138 +21,241 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _obscure = true;
 
   final auth = Get.find<AuthController>();
-
   final semesters = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
 
   @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _emailCtrl.dispose();
+    _passCtrl.dispose();
+    _courseCtrl.dispose();
+    _phoneCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Get.back(),
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Create account',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Text('Join your college lost & found',
-                  style: TextStyle(fontSize: 15, color: Colors.grey[600])),
-              const SizedBox(height: 32),
-
-              _buildLabel('Full Name *'),
-              _buildTextField(controller: _nameCtrl, hint: 'Raj Kumar'),
-              const SizedBox(height: 16),
-
-              _buildLabel('Email *'),
-              _buildTextField(
-                controller: _emailCtrl,
-                hint: 'raj@college.edu',
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16),
-
-              _buildLabel('Phone Number'),
-              _buildTextField(
-                controller: _phoneCtrl,
-                hint: '9876543210',
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 16),
-
-              _buildLabel('Course'),
-              _buildTextField(
-                controller: _courseCtrl,
-                hint: 'B.Tech CSE',
-              ),
-              const SizedBox(height: 16),
-
-              _buildLabel('Semester'),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: BoxDecoration(gradient: AppTheme.background(context)),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // ── Back button ──────────────────────────
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Get.back(),
+                    padding: EdgeInsets.zero,
+                  ),
                 ),
-                child: DropdownButtonFormField<String>(
+                const SizedBox(height: 8),
+
+                // ── Logo ─────────────────────────────────
+                Center(
+                  child: Image.asset(
+                    'assets/Findify_rounded_logo.png',
+                    width: 80,
+                    height: 80,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // ── Header ───────────────────────────────
+                Text(
+                  'Create Account',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Join your college lost & found',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w400,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 36),
+
+                // ── Full Name ────────────────────────────
+                _buildLabel('Full Name *'),
+                TextField(
+                  controller: _nameCtrl,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    hintText: 'Raj Kumar',
+                    prefixIcon: Icon(Icons.person_outline, size: 22),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // ── Email ────────────────────────────────
+                _buildLabel('Email Address *'),
+                TextField(
+                  controller: _emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    hintText: 'raj@college.edu',
+                    prefixIcon: Icon(Icons.email_outlined, size: 22),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // ── Phone ────────────────────────────────
+                _buildLabel('Phone Number'),
+                TextField(
+                  controller: _phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    hintText: '9876543210',
+                    prefixIcon: Icon(Icons.phone_outlined, size: 22),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // ── Course ───────────────────────────────
+                _buildLabel('Course'),
+                TextField(
+                  controller: _courseCtrl,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    hintText: 'B.Tech CSE',
+                    prefixIcon: Icon(Icons.school_outlined, size: 22),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // ── Semester ─────────────────────────────
+                _buildLabel('Semester'),
+                DropdownButtonFormField<String>(
                   value: _selectedSemester,
                   hint: Text('Select semester',
-                      style: TextStyle(color: Colors.grey[400])),
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.calendar_today_outlined, size: 22),
+                    // inherits AppTheme.inputDecorationTheme automatically
                   ),
+                  dropdownColor: theme.cardColor,
+                  borderRadius: BorderRadius.circular(12),
                   items: semesters
                       .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                       .toList(),
                   onChanged: (val) => setState(() => _selectedSemester = val),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
-              _buildLabel('Password *'),
-              _buildTextField(
-                controller: _passCtrl,
-                hint: 'Min. 6 characters',
-                obscure: _obscure,
-                suffix: IconButton(
-                  icon: Icon(
-                    _obscure ? Icons.visibility_off : Icons.visibility,
-                    color: Colors.grey,
+                // ── Password ─────────────────────────────
+                _buildLabel('Password *'),
+                TextField(
+                  controller: _passCtrl,
+                  obscureText: _obscure,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _signup(),
+                  decoration: InputDecoration(
+                    hintText: 'Min. 6 characters',
+                    prefixIcon: const Icon(Icons.lock_outline, size: 22),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscure ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                        size: 20,
+                      ),
+                      onPressed: () => setState(() => _obscure = !_obscure),
+                    ),
                   ),
-                  onPressed: () => setState(() => _obscure = !_obscure),
                 ),
-              ),
-              const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-              // Error
-              Obx(() => auth.errorMessage.value.isNotEmpty
-                  ? Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.shade200),
-                ),
-                child: Text(auth.errorMessage.value,
-                    style:
-                    TextStyle(color: Colors.red[700], fontSize: 13)),
-              )
-                  : const SizedBox()),
+                // ── Error message ────────────────────────
+                Obx(() => AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: auth.errorMessage.value.isNotEmpty
+                      ? Container(
+                    key: ValueKey(auth.errorMessage.value),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.error.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: colorScheme.error.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline,
+                            size: 18, color: colorScheme.error),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            auth.errorMessage.value,
+                            style: TextStyle(
+                                color: colorScheme.error, fontSize: 13),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                      : const SizedBox.shrink(),
+                )),
 
-              const SizedBox(height: 28),
+                const SizedBox(height: 32),
 
-              Obx(() => SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: auth.isLoading.value ? null : _signup,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primary,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: auth.isLoading.value
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Create Account',
+                // ── Signup button ────────────────────────
+                Obx(() => SizedBox(
+                  height: 56,
+                  child: GradientButton(
+                    onPressed: auth.isLoading.value ? null : _signup,
+                    isLoading: auth.isLoading.value,
+                    borderRadius: 12,
+                    child: const Text(
+                      'Create Account',
                       style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white)),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                )),
+
+                const SizedBox(height: 24),
+
+                // ── Login link ───────────────────────────
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Already have an account? ',
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
+                    ),
+                    TextButton(
+                      onPressed: () => Get.back(),
+                      child: const Text(
+                        'Log in',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.primary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              )),
-              const SizedBox(height: 32),
-            ],
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
@@ -159,6 +263,7 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   void _signup() {
+    FocusScope.of(context).unfocus();
     if (_nameCtrl.text.trim().isEmpty ||
         _emailCtrl.text.trim().isEmpty ||
         _passCtrl.text.isEmpty) {
@@ -180,37 +285,10 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Widget _buildLabel(String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Text(text,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+    padding: const EdgeInsets.only(left: 4, bottom: 8),
+    child: Text(
+      text,
+      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+    ),
   );
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    TextInputType keyboardType = TextInputType.text,
-    bool obscure = false,
-    Widget? suffix,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        obscureText: obscure,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.grey[400]),
-          border: InputBorder.none,
-          contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          suffixIcon: suffix,
-        ),
-      ),
-    );
-  }
 }

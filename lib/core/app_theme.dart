@@ -60,12 +60,18 @@ class AppTheme {
       ),
     ),
 
+    // navigationBarTheme: NavigationBarThemeData(
+    //   backgroundColor: Colors.white,
+    //   indicatorColor: primary.withOpacity(0.1),
+    //   labelTextStyle: WidgetStateProperty.all(
+    //     const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+    //   ),
+    // ),
+
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: Colors.white,
-      indicatorColor: primary.withOpacity(0.1),
-      labelTextStyle: WidgetStateProperty.all(
-        const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-      ),
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -125,12 +131,18 @@ class AppTheme {
       ),
     ),
 
+    // navigationBarTheme: NavigationBarThemeData(
+    //   backgroundColor: const Color(0xFF1A1A1A),
+    //   indicatorColor: primary.withOpacity(0.2),
+    //   labelTextStyle: WidgetStateProperty.all(
+    //     const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+    //   ),
+    // ),
+
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: const Color(0xFF1A1A1A),
-      indicatorColor: primary.withOpacity(0.2),
-      labelTextStyle: WidgetStateProperty.all(
-        const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-      ),
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(

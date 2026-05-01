@@ -250,29 +250,21 @@ class ProfileScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 48),
                       child: Column(
                         children: [
-                          Container(
-                            width: 72,
-                            height: 72,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(Icons.post_add_rounded,
-                                size: 34, color: Colors.grey[350]),
-                          ),
+                          Icon(Icons.post_add_rounded,
+                              size: 50, color: Colors.grey.shade500),
                           const SizedBox(height: 14),
                           Text(
                             "No posts yet",
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.grey[600]),
+                                color: Colors.grey.shade500),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             "Your lost & found posts will appear here",
                             style:
-                            TextStyle(fontSize: 13, color: Colors.grey[400]),
+                            TextStyle(fontSize: 16, color: Colors.grey.shade500),
                           ),
                         ],
                       ),
@@ -358,7 +350,7 @@ class ProfileScreen extends StatelessWidget {
         shape:
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Mark as Resolved?',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+            style: TextStyle(fontWeight: FontWeight.w500)),
         content:
         const Text('This lets others know the item was recovered.'),
         actions: [
@@ -492,26 +484,27 @@ class _LogoutButton extends StatelessWidget {
     final confirm = await Get.dialog<bool>(
       AlertDialog(
         shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: const Text('Log out?',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+            style: TextStyle(fontWeight: FontWeight.w500)),
         content:
         const Text('You will be returned to the login screen.'),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
             child:
-            const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            const Text('Cancel', style: TextStyle(fontSize: 16, color: Colors
+                .grey)),
           ),
           ElevatedButton(
             onPressed: () => Get.back(result: true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.lostColor,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('Log Out',
-                style: TextStyle(color: Colors.white)),
+                style: TextStyle(fontSize:16, color: Colors.white)),
           ),
         ],
       ),

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/notification_controller.dart';
 import '../controllers/post_controller.dart';
+import '../controllers/theme_controller.dart';
 import '../core/app_theme.dart';
 import 'add_post_screen.dart';
 import 'notifications_screen.dart';
@@ -32,7 +33,10 @@ class HomeScreen extends StatelessWidget {
                 const EdgeInsets.all(8),
                 child: Row(
                   children: [
-                    Image.asset("assets/Findify_rounded_logo.png",height: 40,),
+                    GestureDetector(
+                      onTap: () => Get.toNamed('/about'),
+                      child: Image.asset("assets/Findify_rounded_logo.png", height: 40),
+                    ),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,11 +76,7 @@ class HomeScreen extends StatelessWidget {
                           );
                         }),
                         const SizedBox(width: 12),
-                        IconButton(
-                          onPressed: () => (),
-                          icon: const Icon(Icons.dark_mode_outlined, size: 30),
-                          tooltip: 'Theme switch',
-                        ),
+                        const _ThemeMenuButton(),
                       ],
                     )
                   ],
@@ -193,7 +193,8 @@ class HomeScreen extends StatelessWidget {
                     onRefresh: postCtrl.fetchPosts,
                     color: AppTheme.primary,
                     child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.only(right: 8, left: 8,
+                          bottom: 80),
                       itemCount: postCtrl.filteredPosts.length,
                       itemBuilder: (_, i) {
                         final post = postCtrl.filteredPosts[i];
@@ -213,25 +214,80 @@ class HomeScreen extends StatelessWidget {
       ),
 
       // ── FAB — Add post ───────────────────────────────────
-      floatingActionButton: _GradientFAB(
-        onPressed: () async {
-          final created = await Get.to(() => const AddPostScreen());
-          if (created == true) {
-            Get.find<NotificationController>().fetchNotifications();
-            Get.snackbar(
-              'Posted!',
-              'Your item has been added to the feed',
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: AppTheme.foundColor,
-              colorText: Colors.white,
-              margin: const EdgeInsets.all(16),
-            );
-          }
-        },
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 60),
+        child: _GradientFAB(
+          onPressed: () async {
+            final created = await Get.to(() => const AddPostScreen());
+            if (created == true) {
+              Get.find<NotificationController>().fetchNotifications();
+              Get.snackbar(
+                'Posted!',
+                'Your item has been added to the feed',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: AppTheme.foundColor,
+                colorText: Colors.white,
+                margin: const EdgeInsets.all(16),
+              );
+            }
+          },
+        ),
       ),
     );
   }
 }
+class _ThemeMenuButton extends StatelessWidget {
+  const _ThemeMenuButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final ctrl = Get.find<ThemeController>();
+
+    const options = [
+      (0, Icons.brightness_auto_outlined, 'System'),
+      (1, Icons.light_mode_outlined,      'Light'),
+      (2, Icons.dark_mode_outlined,       'Dark'),
+    ];
+
+    return Obx(() {
+      final currentIcon = options[ctrl.mode].$2;
+
+      return PopupMenuButton<int>(
+        icon: Icon(currentIcon, size: 26),
+        tooltip: 'Appearance',
+        color: Theme.of(context).cardColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        onSelected: ctrl.setTheme,
+        itemBuilder: (_) => options.map((opt) {
+          final (value, icon, label) = opt;
+          final selected = ctrl.mode == value;
+          return PopupMenuItem<int>(
+            value: value,
+            child: Row(
+              children: [
+                Icon(icon,
+                    size: 20,
+                    color: selected ? AppTheme.primary : null),
+                const SizedBox(width: 10),
+                Text(label,
+                    style: TextStyle(
+                      fontWeight:  FontWeight.w500,
+                      color: selected ? AppTheme.primary : null,
+                    )),
+                if (selected) ...[
+                  const Spacer(),
+                  const Icon(Icons.check, size: 16, color: AppTheme.primary),
+                ],
+              ],
+            ),
+          );
+        }).toList(),
+      );
+    });
+  }
+}
+
 class _GradientFAB extends StatelessWidget {
   final VoidCallback onPressed;
   final String label;

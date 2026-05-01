@@ -103,7 +103,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, ),
+          icon: const Icon(Icons.arrow_back, ),
           onPressed: () => Get.back(),
         ),
         title: const Text('New Post',
@@ -135,12 +135,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         margin: EdgeInsets.only(right: t == 'lost' ? 8 : 0),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          color: isSelected ? color : Colors.white,
+                          color: isSelected ? color : Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isSelected ? color : Colors.grey.shade200,
-                            width: isSelected ? 2 : 1,
-                          ),
+                          // border: Border.all(
+                          //   color: isSelected ? color : Colors.transparent,
+                          //   width: isSelected ? 2 : 1,
+                          // ),
                         ),
                         child: Center(
                           child: Text(
@@ -168,14 +168,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   height: _pickedImage != null ? 400 : 400,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _pickedImage != null
-                          ? AppTheme.primary
-                          : Colors.grey.shade200,
-                      width: _pickedImage != null ? 2 : 1,
-                    ),
+                    // border: Border.all(
+                    //   color: _pickedImage != null
+                    //       ? AppTheme.primary
+                    //       : Colors.grey.shade200,
+                    //   width: _pickedImage != null ? 2 : 1,
+                    // ),
                   ),
                   child: _pickedImage != null
                       ? Stack(
@@ -200,7 +200,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.close,
-                                color: Colors.white, size: 16),
+                                color: Colors.white, size: 20),
                           ),
                         ),
                       ),
@@ -210,11 +210,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.add_photo_alternate_rounded,
-                          size: 36, color: Colors.grey[400]),
+                          size: 50, color: Colors.grey),
                       const SizedBox(height: 8),
                       Text('Tap to add a photo',
                           style: TextStyle(
-                              color: Colors.grey[500], fontSize: 13)),
+                              color: Colors.grey, fontSize: 20)),
                     ],
                   ),
                 ),
@@ -272,7 +272,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primary,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                   child: postCtrl.isUploading.value
                       ? const Row(
@@ -323,7 +323,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        // border: Border.all(color: Colors.grey.shade200),
       ),
       child: TextField(
         controller: controller,
