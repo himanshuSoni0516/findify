@@ -1,3 +1,6 @@
+import 'package:findify/screens/widgets/app_dialog.dart';
+import 'package:findify/screens/widgets/app_snackbar.dart';
+import 'package:findify/screens/widgets/skeleton_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
@@ -22,7 +25,6 @@ class ProfileScreen extends StatelessWidget {
         child: SafeArea(
           child: CustomScrollView(
             slivers: [
-
               // ── Header ──────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
@@ -31,8 +33,10 @@ class ProfileScreen extends StatelessWidget {
                     children: [
                       const Text(
                         'My Profile',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight
-                            .w600),
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const Spacer(),
                       _LogoutButton(authCtrl: authCtrl),
@@ -102,19 +106,24 @@ class ProfileScreen extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                 ),
-                                if (user?.course != null && user!.course!.isNotEmpty) ...[
+                                if (user?.course != null &&
+                                    user!.course!.isNotEmpty) ...[
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      Icon(Icons.school_outlined,
-                                          size: 18, color: Colors.grey[500]),
+                                      Icon(
+                                        Icons.school_outlined,
+                                        size: 18,
+                                        color: Colors.grey[500],
+                                      ),
                                       const SizedBox(width: 4),
                                       Expanded(
                                         child: Text(
                                           '${user.course} · Sem ${user.semester ?? ''}',
                                           style: TextStyle(
-                                              fontSize: 14, color: Colors
-                                              .grey[500]),
+                                            fontSize: 14,
+                                            color: Colors.grey[500],
+                                          ),
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
                                         ),
@@ -122,19 +131,24 @@ class ProfileScreen extends StatelessWidget {
                                     ],
                                   ),
                                 ],
-                                if (user?.phone != null && user!.phone!.isNotEmpty) ...[
+                                if (user?.phone != null &&
+                                    user!.phone!.isNotEmpty) ...[
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      Icon(Icons.phone_outlined,
-                                          size: 18, color: Colors.grey[500]),
+                                      Icon(
+                                        Icons.phone_outlined,
+                                        size: 18,
+                                        color: Colors.grey[500],
+                                      ),
                                       const SizedBox(width: 4),
                                       Expanded(
                                         child: Text(
                                           user.phone!,
                                           style: TextStyle(
-                                              fontSize: 14, color: Colors
-                                              .grey[500]),
+                                            fontSize: 14,
+                                            color: Colors.grey[500],
+                                          ),
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
                                         ),
@@ -193,22 +207,31 @@ class ProfileScreen extends StatelessWidget {
               // ── My Posts header ──────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 12, right: 12, bottom: 12),
+                  padding: const EdgeInsets.only(
+                    left: 12,
+                    right: 12,
+                    bottom: 12,
+                  ),
                   child: Row(
                     children: [
                       const Text(
                         'My Posts',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight
-                            .w500),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       const Spacer(),
                       Obx(() {
                         final count = _getMyPosts(
-                            postCtrl.posts, authCtrl.currentUser.value?.id)
-                            .length;
+                          postCtrl.posts,
+                          authCtrl.currentUser.value?.id,
+                        ).length;
                         return Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 3),
+                            horizontal: 10,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: AppTheme.primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
@@ -228,18 +251,21 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
 
-
               // ── Posts list ───────────────────────────────────
               Obx(() {
                 final myPosts = _getMyPosts(
-                    postCtrl.posts, authCtrl.currentUser.value?.id);
+                  postCtrl.posts,
+                  authCtrl.currentUser.value?.id,
+                );
 
                 if (postCtrl.isLoading.value) {
-                  return const SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.all(48),
-                      child: Center(
-                          child: CircularProgressIndicator(color: AppTheme.primary)),
+                  return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (_, __) => const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: MyPostCardSkeleton(),
+                      ),
+                      childCount: 3,
                     ),
                   );
                 }
@@ -250,21 +276,27 @@ class ProfileScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 48),
                       child: Column(
                         children: [
-                          Icon(Icons.post_add_rounded,
-                              size: 50, color: Colors.grey.shade500),
+                          Icon(
+                            Icons.post_add_rounded,
+                            size: 50,
+                            color: Colors.grey.shade500,
+                          ),
                           const SizedBox(height: 14),
                           Text(
                             "No posts yet",
                             style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey.shade500),
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey.shade500,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             "Your lost & found posts will appear here",
-                            style:
-                            TextStyle(fontSize: 16, color: Colors.grey.shade500),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey.shade500,
+                            ),
                           ),
                         ],
                       ),
@@ -274,16 +306,15 @@ class ProfileScreen extends StatelessWidget {
 
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
-                        (_, i) => Padding(
+                    (_, i) => Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: MyPostCard(
                         post: myPosts[i],
                         onTap: () => Get.to(
-                              () => const PostDetailScreen(),
+                          () => const PostDetailScreen(),
                           arguments: myPosts[i],
                         ),
-                        onDelete: () =>
-                            _confirmDelete(myPosts[i], postCtrl),
+                        onDelete: () => _confirmDelete(myPosts[i], postCtrl),
                         onMarkResolved: myPosts[i].isResolved
                             ? null
                             : () => _confirmResolve(myPosts[i], postCtrl),
@@ -311,74 +342,34 @@ class ProfileScreen extends StatelessWidget {
 
   void _confirmDelete(PostModel post, PostController ctrl) async {
     final confirm = await Get.dialog<bool>(
-      AlertDialog(
-        shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete Post?',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text('This cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child:
-            const Text('Cancel', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () => Get.back(result: true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.lostColor,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-            child: const Text('Delete',
-                style: TextStyle(color: Colors.white)),
-          ),
-        ],
+      const AppDialog(
+        title: 'Delete this post?',
+        message: 'This action is permanent and cannot be undone.',
+        confirmLabel: 'Delete',
+        type: AppDialogType.danger,
       ),
     );
     if (confirm == true) {
       await ctrl.deletePost(post.id);
-      Get.snackbar('Deleted', 'Post removed',
-          snackPosition: SnackPosition.TOP,
-          margin: const EdgeInsets.all(16));
+      AppSnackbar.show(
+        title: 'Deleted',
+        message: 'Post deleted',
+        type: SnackType.error,
+      );
     }
   }
 
   void _confirmResolve(PostModel post, PostController ctrl) async {
     final confirm = await Get.dialog<bool>(
-      AlertDialog(
-        shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Mark as Resolved?',
-            style: TextStyle(fontWeight: FontWeight.w500)),
-        content:
-        const Text('This lets others know the item was recovered.'),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child:
-            const Text('Cancel', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () => Get.back(result: true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.foundColor,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-            child: const Text('Confirm',
-                style: TextStyle(color: Colors.white)),
-          ),
-        ],
+      const AppDialog(
+        title: 'Mark as resolved?',
+        message: 'This lets others know the item was recovered.',
+        confirmLabel: 'Mark resolved',
       ),
     );
     if (confirm == true) {
       await ctrl.markResolved(post.id);
-      Get.snackbar('Done!', 'Marked as resolved',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: AppTheme.foundColor,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(16));
+      AppSnackbar.show(title: 'Resolved', message: 'Marked as resolved');
     }
   }
 }
@@ -436,7 +427,6 @@ class _StatCard extends StatelessWidget {
                 height: 1,
               ),
             ),
-
           ],
         ),
       ),
@@ -458,8 +448,10 @@ class _LogoutButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.lostColor.withOpacity(0.08),
           borderRadius: BorderRadius.circular(12),
-          border:
-          Border.all(color: AppTheme.lostColor.withOpacity(0.2), width: 1),
+          border: Border.all(
+            color: AppTheme.lostColor.withOpacity(0.2),
+            width: 1,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -483,28 +475,32 @@ class _LogoutButton extends StatelessWidget {
   void _confirmLogout(AuthController auth) async {
     final confirm = await Get.dialog<bool>(
       AlertDialog(
-        shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text('Log out?',
-            style: TextStyle(fontWeight: FontWeight.w500)),
-        content:
-        const Text('You will be returned to the login screen.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: const Text(
+          'Log out?',
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
+        content: const Text('You will be returned to the login screen.'),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child:
-            const Text('Cancel', style: TextStyle(fontSize: 16, color: Colors
-                .grey)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Get.back(result: true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.lostColor,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: const Text('Log Out',
-                style: TextStyle(fontSize:16, color: Colors.white)),
+            child: const Text(
+              'Log Out',
+              style: TextStyle(fontSize: 16, color: Colors.white),
+            ),
           ),
         ],
       ),

@@ -1,5 +1,20 @@
 import 'package:flutter/material.dart';
 
+// ── Shared skeleton color helpers ─────────────────────────────
+Color _skeletonBase(bool isDark) =>
+    isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE8E8E8);
+
+Color _skeletonShimmer(bool isDark) =>
+    isDark ? const Color(0xFF3A3A3A) : const Color(0xFFF5F5F5);
+
+Color _cardBorderColor(bool isDark) => isDark
+    ? Colors.white.withValues(alpha: 0.06)
+    : Colors.black.withValues(alpha: 0.06);
+
+Color _cardShadowColor(bool isDark) => isDark
+    ? Colors.black.withValues(alpha: 0.18)
+    : Colors.black.withValues(alpha: 0.06);
+
 // ── Shimmer skeleton box ──────────────────────────────────────
 class SkeletonBox extends StatefulWidget {
   final double width;
@@ -41,10 +56,6 @@ class _SkeletonBoxState extends State<SkeletonBox>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor =
-    isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE8E8E8);
-    final shimmerColor =
-    isDark ? const Color(0xFF3A3A3A) : const Color(0xFFF5F5F5);
 
     return AnimatedBuilder(
       animation: _anim,
@@ -53,14 +64,18 @@ class _SkeletonBoxState extends State<SkeletonBox>
         height: widget.height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(widget.radius),
-          color: Color.lerp(baseColor, shimmerColor, _anim.value),
+          color: Color.lerp(
+            _skeletonBase(isDark),
+            _skeletonShimmer(isDark),
+            _anim.value,
+          ),
         ),
       ),
     );
   }
 }
 
-// ── Single card skeleton — vertical layout (image top, content below)
+// ── PostCard skeleton — vertical layout (image top, content below) ──
 class PostCardSkeleton extends StatelessWidget {
   const PostCardSkeleton({super.key});
 
@@ -73,36 +88,38 @@ class PostCardSkeleton extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withOpacity(0.06)
-              : Colors.black.withOpacity(0.06),
-          width: 1,
-        ),
+        border: Border.all(color: _cardBorderColor(isDark), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: _cardShadowColor(isDark),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Full-width image placeholder ──
-          const ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
             child: SkeletonBox(height: 180, radius: 0),
           ),
 
-          // ── Content ───────────────────────
+          // ── Content ──
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Badges + date row
-                Row(
+                const Row(
                   children: [
-                    const SkeletonBox(width: 52, height: 20, radius: 5),
-                    const SizedBox(width: 6),
-                    const SkeletonBox(width: 72, height: 20, radius: 5),
-                    const Spacer(),
-                    const SkeletonBox(width: 48, height: 12, radius: 4),
+                    SkeletonBox(width: 52, height: 20, radius: 5),
+                    SizedBox(width: 6),
+                    SkeletonBox(width: 72, height: 20, radius: 5),
+                    Spacer(),
+                    SkeletonBox(width: 48, height: 12, radius: 4),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -113,12 +130,18 @@ class PostCardSkeleton extends StatelessWidget {
                 const SkeletonBox(width: 160, height: 15, radius: 6),
                 const SizedBox(height: 10),
 
+                // Description
+                const SkeletonBox(height: 13, radius: 5),
+                const SizedBox(height: 5),
+                const SkeletonBox(width: 200, height: 13, radius: 5),
+                const SizedBox(height: 10),
+
                 // Location
-                Row(
+                const Row(
                   children: [
-                    const SkeletonBox(width: 14, height: 14, radius: 7),
-                    const SizedBox(width: 5),
-                    const SkeletonBox(width: 120, height: 12, radius: 4),
+                    SkeletonBox(width: 14, height: 14, radius: 7),
+                    SizedBox(width: 5),
+                    SkeletonBox(width: 120, height: 12, radius: 4),
                   ],
                 ),
               ],
@@ -130,17 +153,101 @@ class PostCardSkeleton extends StatelessWidget {
   }
 }
 
-// ── Full feed skeleton ────────────────────────────────────────
+// ── MyPostCard skeleton — horizontal layout (thumbnail left, info right) ──
+class MyPostCardSkeleton extends StatelessWidget {
+  const MyPostCardSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _cardBorderColor(isDark), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: _cardShadowColor(isDark),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // ── Thumbnail placeholder (matches the 75×75 image in MyPostCard) ──
+          const ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+            child: SkeletonBox(width: 75, height: 75, radius: 8),
+          ),
+          const SizedBox(width: 5),
+
+          // ── Info column ──
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Badge row (type + optional resolved)
+                Row(
+                  children: [
+                    SkeletonBox(width: 44, height: 18, radius: 2),
+                    SizedBox(width: 6),
+                    SkeletonBox(width: 66, height: 18, radius: 2),
+                  ],
+                ),
+                SizedBox(height: 8),
+
+                // Title
+                SkeletonBox(height: 14, radius: 5),
+                SizedBox(height: 5),
+                SkeletonBox(width: 100, height: 14, radius: 5),
+                SizedBox(height: 6),
+
+                // Location
+                SkeletonBox(width: 90, height: 12, radius: 4),
+              ],
+            ),
+          ),
+
+          // ── Three-dot menu placeholder ──
+          const Padding(
+            padding: EdgeInsets.only(left: 8),
+            child: SkeletonBox(width: 20, height: 20, radius: 10),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Feed skeleton — pass [style] to switch between card layouts ──
+enum FeedSkeletonStyle { postCard, myPostCard }
+
 class FeedSkeleton extends StatelessWidget {
-  const FeedSkeleton({super.key});
+  /// Number of placeholder cards to render.
+  final int itemCount;
+
+  /// Which card layout to mimic.
+  final FeedSkeletonStyle style;
+
+  const FeedSkeleton({
+    super.key,
+    this.itemCount = 4,
+    this.style = FeedSkeletonStyle.postCard,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: 4,
-      itemBuilder: (_, __) => const PostCardSkeleton(),
+      itemCount: itemCount,
+      itemBuilder: (_, __) => style == FeedSkeletonStyle.myPostCard
+          ? const MyPostCardSkeleton()
+          : const PostCardSkeleton(),
     );
   }
 }
