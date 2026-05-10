@@ -1,3 +1,4 @@
+import 'package:findify/screens/widgets/app_text_field.dart';
 import 'package:findify/screens/widgets/gradient_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -89,53 +90,39 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: 36),
 
-                // ── Full Name ────────────────────────────
-                _buildLabel('Full Name *'),
-                TextField(
+                // ── Details fields ───────────────────────
+                AppTextField(
                   controller: _nameCtrl,
+                  label: 'Full Name *',
+                  hint: 'Ramesh',
+                  prefixIcon: Icons.person_outline,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    hintText: 'Raj Kumar',
-                    prefixIcon: Icon(Icons.person_outline, size: 22),
-                  ),
                 ),
                 const SizedBox(height: 20),
-
-                // ── Email ────────────────────────────────
-                _buildLabel('Email Address *'),
-                TextField(
+                AppTextField(
                   controller: _emailCtrl,
+                  label: 'Email Address *',
+                  hint: 'ram@college.edu',
+                  prefixIcon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    hintText: 'raj@college.edu',
-                    prefixIcon: Icon(Icons.email_outlined, size: 22),
-                  ),
                 ),
                 const SizedBox(height: 20),
-
-                // ── Phone ────────────────────────────────
-                _buildLabel('Phone Number'),
-                TextField(
+                AppTextField(
                   controller: _phoneCtrl,
+                  label: 'Phone Number',
+                  hint: '9876543210',
+                  prefixIcon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    hintText: '9876543210',
-                    prefixIcon: Icon(Icons.phone_outlined, size: 22),
-                  ),
                 ),
                 const SizedBox(height: 20),
-
-                // ── Course ───────────────────────────────
-                _buildLabel('Course'),
-                TextField(
+                AppTextField(
                   controller: _courseCtrl,
+                  label: 'Course',
+                  hint: 'B.Tech CSE',
+                  prefixIcon: Icons.school_outlined,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    hintText: 'B.Tech CSE',
-                    prefixIcon: Icon(Icons.school_outlined, size: 22),
-                  ),
                 ),
                 const SizedBox(height: 20),
 
@@ -143,93 +130,106 @@ class _SignupScreenState extends State<SignupScreen> {
                 _buildLabel('Semester'),
                 DropdownButtonFormField<String>(
                   value: _selectedSemester,
-                  hint: Text('Select semester',
-                      style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                  hint: Text(
+                    'Select semester',
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
+                  ),
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.calendar_today_outlined, size: 22),
+                    prefixIcon: const Icon(
+                      Icons.calendar_today_outlined,
+                      size: 20,
+                    ),
                     // inherits AppTheme.inputDecorationTheme automatically
                   ),
                   dropdownColor: theme.cardColor,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                   items: semesters
-                      .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                      .map(
+                        (s) => DropdownMenuItem(
+                          value: s,
+                          child: Text(
+                            s,
+                            style: TextStyle(fontWeight: FontWeight.w400),
+                          ),
+                        ),
+                      )
                       .toList(),
                   onChanged: (val) => setState(() => _selectedSemester = val),
                 ),
                 const SizedBox(height: 20),
 
                 // ── Password ─────────────────────────────
-                _buildLabel('Password *'),
-                TextField(
+                AppTextField(
                   controller: _passCtrl,
-                  obscureText: _obscure,
+                  label: 'Password *',
+                  hint: 'Min. 6 characters',
+                  prefixIcon: Icons.lock_outline,
+                  obscureText: true,
                   textInputAction: TextInputAction.done,
                   onSubmitted: (_) => _signup(),
-                  decoration: InputDecoration(
-                    hintText: 'Min. 6 characters',
-                    prefixIcon: const Icon(Icons.lock_outline, size: 22),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscure ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey,
-                        size: 20,
-                      ),
-                      onPressed: () => setState(() => _obscure = !_obscure),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 12),
 
                 // ── Error message ────────────────────────
-                Obx(() => AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: auth.errorMessage.value.isNotEmpty
-                      ? Container(
-                    key: ValueKey(auth.errorMessage.value),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.error.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                          color: colorScheme.error.withOpacity(0.2)),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.error_outline,
-                            size: 18, color: colorScheme.error),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            auth.errorMessage.value,
-                            style: TextStyle(
-                                color: colorScheme.error, fontSize: 13),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                      : const SizedBox.shrink(),
-                )),
+                Obx(
+                  () => AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: auth.errorMessage.value.isNotEmpty
+                        ? Container(
+                            key: ValueKey(auth.errorMessage.value),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: colorScheme.error.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: colorScheme.error.withOpacity(0.2),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  size: 18,
+                                  color: colorScheme.error,
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    auth.errorMessage.value,
+                                    style: TextStyle(
+                                      color: colorScheme.error,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                ),
 
                 const SizedBox(height: 32),
 
                 // ── Signup button ────────────────────────
-                Obx(() => SizedBox(
-                  height: 56,
-                  child: GradientButton(
-                    onPressed: auth.isLoading.value ? null : _signup,
-                    isLoading: auth.isLoading.value,
-                    borderRadius: 12,
-                    child: const Text(
-                      'Create Account',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
+                Obx(
+                  () => SizedBox(
+                    height: 56,
+                    child: GradientButton(
+                      onPressed: auth.isLoading.value ? null : _signup,
+                      isLoading: auth.isLoading.value,
+                      borderRadius: 12,
+                      child: const Text(
+                        'Create Account',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                )),
+                ),
 
                 const SizedBox(height: 24),
 
@@ -288,7 +288,7 @@ class _SignupScreenState extends State<SignupScreen> {
     padding: const EdgeInsets.only(left: 4, bottom: 8),
     child: Text(
       text,
-      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+      style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
     ),
   );
 }

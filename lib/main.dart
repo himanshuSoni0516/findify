@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:findify/screens/about_screen.dart';
 import 'package:findify/screens/widgets/glass_nav_bar.dart';
+import 'package:findify/screens/widgets/main_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'controllers/auth_controller.dart';
@@ -35,63 +36,56 @@ class FindifyApp extends StatelessWidget {
       initialBinding: BindingsBuilder(() {
         Get.put(ThemeController());
         Get.put(AuthController());
-        Get.put(PostController());
         Get.put(NotificationController());
       }),
       initialRoute: '/splash',
       getPages: [
-        GetPage(name: '/splash',      page: () => const SplashScreen()),
-        GetPage(name: '/login',       page: () => const LoginScreen()),
-        GetPage(name: '/signup',      page: () => const SignupScreen()),
-        GetPage(name: '/home',        page: () => const MainShell()),
-        GetPage(name: '/post-detail', page: () => const PostDetailScreen()),
-        GetPage(name: '/about',       page: () => const AboutScreen()),
+        GetPage(
+          name: '/splash',
+          page: () => const SplashScreen(),
+          transition: Transition.fadeIn,
+          transitionDuration: const Duration(milliseconds: 500),
+        ),
+        GetPage(
+          name: '/login',
+          page: () => const LoginScreen(),
+          transition: Transition.fadeIn,
+          transitionDuration: const Duration(milliseconds: 250),
+        ),
+        GetPage(
+          name: '/signup',
+          page: () => const SignupScreen(),
+          transition: Transition.rightToLeft,
+          transitionDuration: const Duration(milliseconds: 250),
+        ),
+        GetPage(
+          name: '/home',
+          page: () => const MainShell(),
+          transition: Transition.fadeIn,
+          transitionDuration: const Duration(milliseconds: 250),
+          binding: BindingsBuilder(() {
+            Get.lazyPut<PostController>(() => PostController());
+          }),
+        ),
+        GetPage(
+          name: '/post-detail',
+          page: () => const PostDetailScreen(),
+          transition: Transition.rightToLeft,
+          transitionDuration: const Duration(milliseconds: 250),
+        ),
+        GetPage(
+          name: '/about',
+          page: () => const AboutScreen(),
+          transition: Transition.rightToLeftWithFade,
+          transitionDuration: const Duration(milliseconds: 250),
+        ),
+        GetPage(
+          name: '/profile',
+          page: () => const ProfileScreen(),
+          transition: Transition.rightToLeft,
+          transitionDuration: const Duration(milliseconds: 250),
+        ),
       ],
-    );
-  }
-}
-
-// ── Main shell ────────────────────────────────────────────────
-class MainShell extends StatefulWidget {
-  const MainShell({super.key});
-
-  @override
-  State<MainShell> createState() => _MainShellState();
-}
-
-class _MainShellState extends State<MainShell> {
-  int _index = 0;
-
-  final _screens = const [
-    HomeScreen(),
-    ProfileScreen(),
-  ];
-
-  static const _navItems = [
-    NavItem(icon: Icons.home_outlined,  activeIcon: Icons.home_rounded,   label: 'Feed'),
-    NavItem(icon: Icons.person_outline, activeIcon: Icons.person_rounded, label: 'Profile'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final bottomPad = MediaQuery.of(context).padding.bottom;
-
-    return Scaffold(
-      body: Stack(
-        children: [
-          IndexedStack(index: _index, children: _screens),
-          Positioned(
-            left: 27,
-            right: 27,
-            bottom: bottomPad + 10,
-            child: GlassNavBar(
-              currentIndex: _index,
-              items: _navItems,
-              onTap: (i) => setState(() => _index = i),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

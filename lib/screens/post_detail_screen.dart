@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/post_controller.dart';
 import '../core/api_client.dart';
@@ -42,19 +43,33 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           setState(() => ownerProfile = data[0]);
         }
       }
-    } catch (_) {} finally {
+    } catch (_) {
+    } finally {
       setState(() => loadingOwner = false);
     }
   }
 
-  bool get isOwner =>
-      authCtrl.currentUser.value?.id == post.userId;
+  void _call(String phone) async {
+    try {
+      await launchUrl(
+        Uri.parse('tel:$phone'),
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Could not open dialer',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  bool get isOwner => authCtrl.currentUser.value?.id == post.userId;
 
   @override
   Widget build(BuildContext context) {
     final isLost = post.type == 'lost';
-    final typeColor =
-    isLost ? AppTheme.lostColor : AppTheme.foundColor;
+    final typeColor = isLost ? AppTheme.lostColor : AppTheme.foundColor;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -65,9 +80,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             pinned: true,
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             surfaceTintColor: Colors.transparent,
-            title: Text("Post Details",
-              style: TextStyle(fontSize: 20,
-                fontWeight: FontWeight.w500),),
+            title: Text(
+              "Post Details",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+            ),
             elevation: 0,
             scrolledUnderElevation: 0.5,
             leading: GestureDetector(
@@ -89,7 +105,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             ),
           ),
 
-// ── Image Section ────────────────────────────────────────────
+          // ── Image Section ────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(0),
@@ -97,12 +113,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 borderRadius: BorderRadius.circular(0),
                 child: post.imageUrl != null
                     ? Image.network(
-                  post.imageUrl!,
-                  height: 400,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _imageFallback(typeColor, isLost),
-                )
+                        post.imageUrl!,
+                        height: 400,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                            _imageFallback(typeColor, isLost),
+                      )
                     : _imageFallback(typeColor, isLost),
               ),
             ),
@@ -118,10 +135,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   // Badges row
                   Row(
                     children: [
-                      _badge(
-                        isLost ? 'LOST' : 'FOUND',
-                        typeColor,
-                      ),
+                      _badge(isLost ? 'LOST' : 'FOUND', typeColor),
                       if (post.isResolved) ...[
                         const SizedBox(width: 8),
                         _badge('RESOLVED', Colors.blueAccent),
@@ -129,8 +143,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       const Spacer(),
                       Text(
                         _formatDate(post.createdAt),
-                        style: TextStyle(
-                            fontSize: 14, color: Colors.grey[500]),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                       ),
                     ],
                   ),
@@ -139,21 +152,28 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   Text(
                     post.title,
                     style: const TextStyle(
-                        fontSize: 28, fontWeight: FontWeight.w500),
+                      fontSize: 28,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(height: 5),
 
                   // Location chip
                   Row(
                     children: [
-                      Icon(Icons.location_on_rounded,
-                          size: 20, color: Colors.red),
+                      Icon(
+                        Icons.location_on_rounded,
+                        size: 20,
+                        color: Colors.red,
+                      ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           post.location,
                           style: TextStyle(
-                              fontSize: 20, color: Colors.grey[700]),
+                            fontSize: 20,
+                            color: Colors.grey[700],
+                          ),
                         ),
                       ),
                     ],
@@ -166,10 +186,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     _card(
                       child: Text(
                         post.description,
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey[800],
-                            ),
+                        style: TextStyle(fontSize: 18, color: Colors.grey[800]),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -180,115 +197,130 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   _card(
                     child: loadingOwner
                         ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(12),
-                        child: CircularProgressIndicator(color: AppTheme.primary),
-                      ),
-                    )
-                        : ownerProfile == null
-                        ? Text('Owner info not available',
-                        style: TextStyle(color: Colors.grey[500]))
-                        : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // ── Always show: name + course ──────────
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 24,
-                              backgroundColor:
-                              AppTheme.primary.withOpacity(0.1),
-                              child: Text(
-                                (ownerProfile!['name'] as String)
-                                    .substring(0, 1)
-                                    .toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.primary,
-                                ),
+                            child: Padding(
+                              padding: EdgeInsets.all(12),
+                              child: CircularProgressIndicator(
+                                color: AppTheme.primary,
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                          )
+                        : ownerProfile == null
+                        ? Text(
+                            'Owner info not available',
+                            style: TextStyle(color: Colors.grey[500]),
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // ── Always show: name + course ──────────
+                              Row(
                                 children: [
-                                  Text(
-                                    ownerProfile!['name'] ?? '',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 20),
-                                  ),
-                                  if (ownerProfile!['course'] != null &&
-                                      (ownerProfile!['course'] as String)
-                                          .isNotEmpty)
-                                    Text(
-                                      '${ownerProfile!['course']} · Sem ${ownerProfile!['semester'] ?? ''}',
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey[500]),
+                                  CircleAvatar(
+                                    radius: 24,
+                                    backgroundColor: AppTheme.primary
+                                        .withOpacity(0.1),
+                                    child: Text(
+                                      (ownerProfile!['name'] as String)
+                                          .substring(0, 1)
+                                          .toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.primary,
+                                      ),
                                     ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          ownerProfile!['name'] ?? '',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                        if (ownerProfile!['course'] != null &&
+                                            (ownerProfile!['course'] as String)
+                                                .isNotEmpty)
+                                          Text(
+                                            '${ownerProfile!['course']} · Sem ${ownerProfile!['semester'] ?? ''}',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[500],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
 
-                        // ── Contact details: only for OTHER user's posts ──
-                        if (!isOwner) ...[
-                          const Divider(height: 28),
+                              // ── Contact details: only for OTHER user's posts ──
+                              if (!isOwner) ...[
+                                const Divider(height: 28),
 
-                          if (ownerProfile!['phone'] != null &&
-                              (ownerProfile!['phone'] as String)
-                                  .isNotEmpty) ...[
-                            _contactRow(
-                              icon: Icons.phone_rounded,
-                              label: ownerProfile!['phone'],
-                              color: AppTheme.foundColor,
-                              onTap: () => _copyToClipboard(
-                                  ownerProfile!['phone'],
-                                  'Phone number copied'),
-                            ),
-                            const SizedBox(height: 12),
-                          ],
+                                if (ownerProfile!['phone'] != null &&
+                                    (ownerProfile!['phone'] as String)
+                                        .isNotEmpty) ...[
+                                  _contactRow(
+                                    icon: Icons.phone_rounded,
+                                    label: ownerProfile!['phone'],
+                                    color: AppTheme.foundColor,
+                                    onTap: () => _call(ownerProfile!['phone']),
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
 
-                          // ── "No contact info" fallback ──────────
-                          if ((ownerProfile!['phone'] == null ||
-                              (ownerProfile!['phone'] as String).isEmpty))
-                            Row(
-                              children: [
-                                Icon(Icons.info_outline,
-                                    size: 16, color: Colors.grey[400]),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Owner has not added contact details',
-                                  style: TextStyle(
-                                      fontSize: 13, color: Colors.grey[400]),
+                                // ── "No contact info" fallback ──────────
+                                if ((ownerProfile!['phone'] == null ||
+                                    (ownerProfile!['phone'] as String).isEmpty))
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.info_outline,
+                                        size: 16,
+                                        color: Colors.grey[400],
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Owner has not added contact details',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.grey[400],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+
+                              // ── If it IS your post, show a label ─────
+                              if (isOwner) ...[
+                                const Divider(height: 28),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.edit_note_rounded,
+                                      color: Colors.grey[400],
+                                      size: 22,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'You posted this item',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey[400],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
-                            ),
-                        ],
-
-                        // ── If it IS your post, show a label ─────
-                        if (isOwner) ...[
-                          const Divider(height: 28),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.edit_note_rounded,
-                                  color: Colors.grey[400], size: 22),
-                              const SizedBox(width: 8),
-                              Text(
-                                'You posted this item',
-                                style: TextStyle(
-                                    fontSize: 13, color: Colors.grey[400]),
-                              ),
                             ],
                           ),
-                        ],
-                      ],
-                    ),
                   ),
 
                   const SizedBox(height: 20),
@@ -332,9 +364,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            isLost
-                ? Icons.search_rounded
-                : Icons.volunteer_activism_rounded,
+            isLost ? Icons.search_rounded : Icons.volunteer_activism_rounded,
             size: 64,
             color: typeColor.withOpacity(0.35),
           ),
@@ -356,10 +386,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   void _copyToClipboard(String text, String message) {
     Clipboard.setData(ClipboardData(text: text));
-    Get.snackbar('Copied', message,
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 2));
+    Get.snackbar(
+      'Copied',
+      message,
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(16),
+      duration: const Duration(seconds: 2),
+    );
   }
 
   void _markResolved() async {
@@ -372,11 +405,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     if (confirm == true) {
       await postCtrl.markResolved(post.id);
       Get.back();
-      Get.snackbar('Done!', 'Post marked as resolved',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: AppTheme.foundColor,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(16));
+      Get.snackbar(
+        'Done!',
+        'Post marked as resolved',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppTheme.foundColor,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+      );
     }
   }
 
@@ -390,9 +426,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     if (confirm == true) {
       await postCtrl.deletePost(post.id);
       Get.back();
-      Get.snackbar('Deleted', 'Your post has been removed',
-          snackPosition: SnackPosition.TOP,
-          margin: const EdgeInsets.all(16));
+      Get.snackbar(
+        'Deleted',
+        'Your post has been removed',
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(16),
+      );
     }
   }
 
@@ -405,26 +444,26 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     return showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(title,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel',
-                style: TextStyle(color: Colors.grey)),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: confirmColor,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: Text(confirmLabel,
-                style: const TextStyle(color: Colors.white)),
+            child: Text(
+              confirmLabel,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -433,9 +472,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   Widget _sectionTitle(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 10),
-    child: Text(text,
-        style: const TextStyle(
-            fontSize: 16, fontWeight: FontWeight.w500)),
+    child: Text(
+      text,
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+    ),
   );
 
   Widget _card({required Widget child}) => Container(
@@ -446,27 +486,30 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       borderRadius: BorderRadius.circular(12),
       boxShadow: [
         BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2)),
+          color: Colors.black.withOpacity(0.04),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
       ],
     ),
     child: child,
   );
 
   Widget _badge(String label, Color color) => Container(
-    padding:
-    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
     decoration: BoxDecoration(
       color: color.withOpacity(0.12),
       borderRadius: BorderRadius.circular(6),
     ),
-    child: Text(label,
-        style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: color,
-            letterSpacing: 0.5)),
+    child: Text(
+      label,
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: color,
+        letterSpacing: 0.5,
+      ),
+    ),
   );
 
   Widget _contactRow({
@@ -474,69 +517,84 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     required String label,
     required Color color,
     required VoidCallback onTap,
-  }) =>
-      GestureDetector(
-        onTap: onTap,
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 30),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(label,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w500)),
-            ),
-            Icon(Icons.copy_rounded, size: 20, color: Colors.grey[400]),
-          ],
+  }) => GestureDetector(
+    onTap: onTap,
+    child: Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: color, size: 30),
         ),
-      );
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
+        ),
+        Icon(Icons.call_rounded, size: 20, color: AppTheme.foundColor),
+      ],
+    ),
+  );
 
   Widget _actionButton({
     required String label,
     required Color color,
     required VoidCallback onTap,
     bool outlined = false,
-  }) =>
-      SizedBox(
-        width: double.infinity,
-        height: 50,
-        child: outlined
-            ? OutlinedButton(
-          onPressed: onTap,
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(color: color, width: 1.5),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8)),
-          ),
-          child: Text(label,
-              style: TextStyle(
-                  color: color, fontWeight: FontWeight.w500)),
-        )
-            : ElevatedButton(
-          onPressed: onTap,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: color,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8)),
-          ),
-          child: Text(label,
+  }) => SizedBox(
+    width: double.infinity,
+    height: 50,
+    child: outlined
+        ? OutlinedButton(
+            onPressed: onTap,
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: color, width: 1.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(color: color, fontWeight: FontWeight.w500),
+            ),
+          )
+        : ElevatedButton(
+            onPressed: onTap,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: color,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              label,
               style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500)),
-        ),
-      );
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+  );
 
   String _formatDate(DateTime date) {
     final months = [
-      'Jan','Feb','Mar','Apr','May','Jun',
-      'Jul','Aug','Sep','Oct','Nov','Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }

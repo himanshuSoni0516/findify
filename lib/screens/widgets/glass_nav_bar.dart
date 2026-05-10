@@ -1,9 +1,8 @@
+// glass_nav_bar.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../core/app_theme.dart';
-
-// ── Nav item model ────────────────────────────────────────────
 class NavItem {
   final IconData icon;
   final IconData activeIcon;
@@ -16,8 +15,7 @@ class NavItem {
   });
 }
 
-// ── Static nav bar ────────────────────────────────────────────
-class GlassNavBar extends StatelessWidget {
+class GlassNavBar extends StatefulWidget {
   final int currentIndex;
   final List<NavItem> items;
   final ValueChanged<int> onTap;
@@ -27,96 +25,182 @@ class GlassNavBar extends StatelessWidget {
     required this.currentIndex,
     required this.items,
     required this.onTap,
-  });
+  }) : assert(items.length >= 2, 'GlassNavBar requires at least 2 items');
+
+  @override
+  State<GlassNavBar> createState() => _GlassNavBarState();
+}
+
+class _GlassNavBarState extends State<GlassNavBar>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+
+  double get _normalizedIndex => widget.items.length > 1
+      ? widget.currentIndex / (widget.items.length - 1)
+      : 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+      value: _normalizedIndex,
+    );
+  }
+
+  @override
+  void didUpdateWidget(GlassNavBar old) {
+    super.didUpdateWidget(old);
+    if (old.currentIndex != widget.currentIndex) {
+      _ctrl.animateTo(_normalizedIndex, curve: Curves.easeInOutCubic);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final bgColor = isDark
-        ? const Color(0xFF1C1B2E)
-        : const Color(0xFFFFFFFF);
+        ? const Color(0xFF0D1F15).withValues(alpha: 0.22)
+        : Colors.white.withValues(alpha: 0.18);
 
     final borderColor = isDark
-        ? Colors.white.withOpacity(0.06)
-        : Colors.black.withOpacity(0.07);
+        ? const Color(0xFF2A6040).withValues(alpha: 0.12)
+        : const Color(0xFF1A7A45).withValues(alpha: 0.06);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(50),
-        color: bgColor,
-        border: Border.all(color: borderColor, width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Colors.black.withOpacity(0.35)
-                : Colors.black.withOpacity(0.07),
-            blurRadius: 20,
-            spreadRadius: -4,
-            offset: const Offset(0, 6),
+    final activeGreen = isDark
+        ? const Color(0xFF3DBF72)
+        : const Color(0xFF1A8A4A);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(50),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(50),
+            color: bgColor,
+            border: Border.all(color: borderColor, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: isDark
+                    ? Colors.black.withValues(alpha: 0.30)
+                    : Colors.black.withValues(alpha: 0.04),
+                blurRadius: 24,
+                spreadRadius: -4,
+                offset: const Offset(0, 8),
+              ),
+              BoxShadow(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.04)
+                    : Colors.white.withValues(alpha: 0.50),
+                blurRadius: 0,
+                spreadRadius: 0,
+                offset: const Offset(0, 1),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.max, // stretch to fill Positioned width
-        children: List.generate(items.length, (i) {
-          return Expanded(  // each pill gets equal share
-            child: _NavPill(
-              item: items[i],
-              isActive: i == currentIndex,
-              isDark: isDark,
-              onTap: () {
-                HapticFeedback.lightImpact();
-                onTap(i);
-              },
-            ),
-          );
-        }),
+          child: AnimatedBuilder(
+            animation: _ctrl,
+            builder: (context, _) {
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final pillW = constraints.maxWidth / widget.items.length;
+                  final slideX = _ctrl.value * (constraints.maxWidth - pillW);
+
+                  return Stack(
+                    children: [
+                      Positioned(
+                        left: slideX,
+                        top: 0,
+                        width: pillW,
+                        bottom: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(40),
+                            color: isDark
+                                ? const Color(
+                                    0xFF3DBF72,
+                                  ).withValues(alpha: 0.09)
+                                : const Color(
+                                    0xFF1A8A4A,
+                                  ).withValues(alpha: 0.07),
+                            border: Border.all(
+                              color: isDark
+                                  ? const Color(
+                                      0xFF3DBF72,
+                                    ).withValues(alpha: 0.08)
+                                  : const Color(
+                                      0xFF1A8A4A,
+                                    ).withValues(alpha: 0.07),
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      Row(
+                        children: List.generate(widget.items.length, (i) {
+                          return Expanded(
+                            child: _NavPill(
+                              item: widget.items[i],
+                              isActive: i == widget.currentIndex,
+                              isDark: isDark,
+                              activeColor: activeGreen,
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                widget.onTap(i);
+                              },
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ),
       ),
     );
   }
 }
 
-// ── Single pill ───────────────────────────────────────────────
 class _NavPill extends StatelessWidget {
   final NavItem item;
   final bool isActive;
   final bool isDark;
+  final Color activeColor;
   final VoidCallback onTap;
 
   const _NavPill({
-    super.key,
     required this.item,
     required this.isActive,
     required this.isDark,
+    required this.activeColor,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = AppTheme.primary;
-
     final inactiveColor = isDark
-        ? Colors.white.withOpacity(0.35)
-        : Colors.black.withOpacity(0.28);
-
-    final activeBg = isDark
-        ? AppTheme.primary.withOpacity(0.18)
-        : AppTheme.primary.withOpacity(0.12);
+        ? Colors.white.withValues(alpha: 0.22)
+        : Colors.black.withValues(alpha: 0.18);
 
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 320),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(40),
-          color: isActive ? activeBg : Colors.transparent,
-        ),
-        // Center the icon+label inside the equal-width cell
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Center(
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -140,7 +224,7 @@ class _NavPill extends StatelessWidget {
                   duration: const Duration(milliseconds: 220),
                   style: TextStyle(
                     color: isActive ? activeColor : inactiveColor,
-                    fontSize: 13,
+                    fontSize: 15,
                     fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                     fontFamily: 'Fredoka',
                     letterSpacing: 0.2,

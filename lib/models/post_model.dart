@@ -21,6 +21,30 @@ class PostModel {
     required this.createdAt,
   });
 
+  PostModel copyWith({
+    String? id,
+    String? userId,
+    String? title,
+    String? description,
+    String? type,
+    String? location,
+    String? imageUrl,
+    bool? isResolved,
+    DateTime? createdAt,
+  }) {
+    return PostModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      type: type ?? this.type,
+      location: location ?? this.location,
+      imageUrl: imageUrl ?? this.imageUrl,
+      isResolved: isResolved ?? this.isResolved,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return PostModel(
       id: json['id'] ?? '',

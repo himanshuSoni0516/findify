@@ -1,3 +1,4 @@
+import 'package:findify/screens/widgets/app_text_field.dart';
 import 'package:findify/screens/widgets/gradient_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -72,87 +73,88 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 48),
 
                   // Email field
-                  _buildLabel('Email Address'),
-                  TextField(
+                  AppTextField(
                     controller: _emailCtrl,
+                    label: 'Email Address',
+                    hint: 'email address',
+                    prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
-                      hintText: 'email address',
-                      prefixIcon: Icon(Icons.email_outlined, size: 22),
-                    ),
                   ),
                   const SizedBox(height: 20),
 
                   // Password field
-                  _buildLabel('Password'),
-                  TextField(
+                  AppTextField(
                     controller: _passCtrl,
-                    obscureText: _obscure,
+                    label: 'Password',
+                    hint: 'password',
+                    prefixIcon: Icons.lock_outline,
+                    obscureText: true,
                     textInputAction: TextInputAction.done,
                     onSubmitted: (_) => _login(),
-                    decoration: InputDecoration(
-                      hintText: 'password',
-                      prefixIcon: const Icon(Icons.lock_outline, size: 22),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscure ? Icons.visibility_off : Icons.visibility,
-                          color: Colors.grey,
-                          size: 20,
-                        ),
-                        onPressed: () => setState(() => _obscure = !_obscure),
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 12),
 
                   // Error message
-                  Obx(() => AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: auth.errorMessage.value.isNotEmpty
-                        ? Container(
-                      key: ValueKey(auth.errorMessage.value),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: colorScheme.error.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: colorScheme.error.withOpacity(0.2)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.error_outline, size: 18, color: colorScheme.error),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              auth.errorMessage.value,
-                              style: TextStyle(color: colorScheme.error, fontSize: 13),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                        : const SizedBox.shrink(),
-                  )),
+                  Obx(
+                    () => AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: auth.errorMessage.value.isNotEmpty
+                          ? Container(
+                              key: ValueKey(auth.errorMessage.value),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: colorScheme.error.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: colorScheme.error.withOpacity(0.2),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.error_outline,
+                                    size: 18,
+                                    color: colorScheme.error,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      auth.errorMessage.value,
+                                      style: TextStyle(
+                                        color: colorScheme.error,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ),
 
                   const SizedBox(height: 32),
 
                   // Login button
-                  Obx(() => SizedBox(
-                    height: 56,
-                    child: GradientButton(
-                      onPressed: auth.isLoading.value ? null : _login,
-                      isLoading: auth.isLoading.value,
-                      borderRadius: 12,
-                      child: const Text(
-                        'Log In',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                  Obx(
+                    () => SizedBox(
+                      height: 56,
+                      child: GradientButton(
+                        onPressed: auth.isLoading.value ? null : _login,
+                        isLoading: auth.isLoading.value,
+                        borderRadius: 12,
+                        child: const Text(
+                          'Log In',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    )
-                  )),
+                    ),
+                  ),
 
                   const SizedBox(height: 24),
 
@@ -191,17 +193,6 @@ class _LoginScreenState extends State<LoginScreen> {
       auth.errorMessage.value = 'Please fill in all fields';
       return;
     }
-    auth.signIn(
-      email: _emailCtrl.text.trim(),
-      password: _passCtrl.text,
-    );
+    auth.signIn(email: _emailCtrl.text.trim(), password: _passCtrl.text);
   }
-
-  Widget _buildLabel(String text) => Padding(
-    padding: const EdgeInsets.only(left: 4, bottom: 8),
-    child: Text(
-      text,
-      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-    ),
-  );
 }

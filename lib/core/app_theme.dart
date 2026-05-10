@@ -2,37 +2,36 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // ── Brand colors ──────────────────────────────────────────
-  static const primary    = Colors.blueAccent;
-  static const lostColor  = Colors.red;
+  static const primary = Colors.blueAccent;
+  static const lostColor = Colors.red;
   static const foundColor = Colors.lightGreen;
 
   // ── Gradient backgrounds ──────────────────────────────────
-  static const lightGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [
-      Color(0xFFF3EEFF), // soft lavender
-      Color(0xFFF8F5FF), // near white purple
-      Color(0xFFEDE6FF), // muted violet
-    ],
+
+  // Light
+  static const lightGradient = RadialGradient(
+    center: Alignment(-0.6, -0.7),
+    radius: 1.4,
+    colors: [Color(0xFFF0FDF4), Color(0xFFE5F7EC), Color(0xFFDCF0E3)],
     stops: [0.0, 0.5, 1.0],
   );
 
-  static const darkGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF110D1A), // deep purple-black
-      Color(0xFF0F0D16), // dark violet base
-      Color(0xFF130E1F), // rich dark plum
-    ],
+  // Dark
+  static const darkGradient = RadialGradient(
+    center: Alignment(-0.6, -0.7),
+    radius: 1.4,
+    colors: [Color(0xFF0C1F14), Color(0xFF091510), Color(0xFF05100A)],
     stops: [0.0, 0.5, 1.0],
   );
 
-  static LinearGradient background(BuildContext context) {
+  static RadialGradient background(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark ? darkGradient : lightGradient;
   }
+
+  // ── Shared border radius ──────────────────────────────────
+  static const _borderRadius = 8.0;
+  static const _borderWidth = 1.0;
 
   // ── Light theme ───────────────────────────────────────────
   static final light = ThemeData(
@@ -60,14 +59,6 @@ class AppTheme {
       ),
     ),
 
-    // navigationBarTheme: NavigationBarThemeData(
-    //   backgroundColor: Colors.white,
-    //   indicatorColor: primary.withOpacity(0.1),
-    //   labelTextStyle: WidgetStateProperty.all(
-    //     const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-    //   ),
-    // ),
-
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
@@ -78,10 +69,8 @@ class AppTheme {
       style: ElevatedButton.styleFrom(
         backgroundColor: primary,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12)),
-        textStyle: const TextStyle(
-            fontWeight: FontWeight.w600, fontSize: 15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
       ),
     ),
 
@@ -89,19 +78,32 @@ class AppTheme {
       filled: true,
       fillColor: Colors.white,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(_borderRadius),
+        borderSide: BorderSide(
+          color: Colors.grey.withValues(alpha: 0.25),
+          width: _borderWidth,
+        ),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(_borderRadius),
+        borderSide: BorderSide(
+          color: Colors.grey.withValues(alpha: 0.25),
+          width: _borderWidth,
+        ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: primary, width: 1.5),
+        borderRadius: BorderRadius.circular(_borderRadius),
+        borderSide: BorderSide(
+          color: Colors.grey.withValues(alpha: 0.5),
+          width: _borderWidth,
+        ),
       ),
-      contentPadding:
-      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      hintStyle: TextStyle(
+        color: Colors.grey.shade400,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
     ),
   );
 
@@ -131,14 +133,6 @@ class AppTheme {
       ),
     ),
 
-    // navigationBarTheme: NavigationBarThemeData(
-    //   backgroundColor: const Color(0xFF1A1A1A),
-    //   indicatorColor: primary.withOpacity(0.2),
-    //   labelTextStyle: WidgetStateProperty.all(
-    //     const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-    //   ),
-    // ),
-
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
@@ -149,10 +143,8 @@ class AppTheme {
       style: ElevatedButton.styleFrom(
         backgroundColor: primary,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12)),
-        textStyle: const TextStyle(
-            fontWeight: FontWeight.w600, fontSize: 15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
       ),
     ),
 
@@ -160,20 +152,32 @@ class AppTheme {
       filled: true,
       fillColor: const Color(0xFF2A2A2A),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.white12),
+        borderRadius: BorderRadius.circular(_borderRadius),
+        borderSide: BorderSide(
+          color: Colors.grey.withValues(alpha: 0.25),
+          width: _borderWidth,
+        ),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.white12),
+        borderRadius: BorderRadius.circular(_borderRadius),
+        borderSide: BorderSide(
+          color: Colors.grey.withValues(alpha: 0.25),
+          width: _borderWidth,
+        ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: primary, width: 1.5),
+        borderRadius: BorderRadius.circular(_borderRadius),
+        borderSide: BorderSide(
+          color: Colors.grey.withValues(alpha: 0.5),
+          width: _borderWidth,
+        ),
       ),
-      hintStyle: const TextStyle(color: Colors.white38),
-      contentPadding:
-      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      hintStyle: const TextStyle(
+        color: Colors.white38,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
     ),
   );
 }

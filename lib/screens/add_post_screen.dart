@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:findify/screens/widgets/app_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,22 +25,33 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final postCtrl = Get.find<PostController>();
   final authCtrl = Get.find<AuthController>();
 
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _descCtrl.dispose();
+    _locationCtrl.dispose();
+    super.dispose();
+  }
+
   Future<void> _pickImage() async {
     final result = await showModalBottomSheet<ImageSource>(
       context: context,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 12),
             Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2))),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
             const SizedBox(height: 20),
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded),
@@ -59,7 +71,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
     if (result != null) {
       final picked = await _picker.pickImage(
-          source: result, maxWidth: 1080, imageQuality: 80);
+        source: result,
+        maxWidth: 1080,
+        imageQuality: 80,
+      );
       if (picked != null) {
         setState(() => _pickedImage = File(picked.path));
       }
@@ -68,17 +83,23 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
   Future<void> _submit() async {
     if (_titleCtrl.text.trim().isEmpty) {
-      Get.snackbar('Missing field', 'Please enter a title',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+      Get.snackbar(
+        'Missing field',
+        'Please enter a title',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
     if (_locationCtrl.text.trim().isEmpty) {
-      Get.snackbar('Missing field', 'Please enter a location',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+      Get.snackbar(
+        'Missing field',
+        'Please enter a location',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
 
@@ -103,19 +124,19 @@ class _AddPostScreenState extends State<AddPostScreen> {
         backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, ),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Get.back(),
         ),
-        title: const Text('New Post',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500)),
+        title: const Text(
+          'New Post',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
+        ),
         centerTitle: true,
       ),
       body: Container(
         decoration: BoxDecoration(gradient: AppTheme.background(context)),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -135,7 +156,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         margin: EdgeInsets.only(right: t == 'lost' ? 8 : 0),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          color: isSelected ? color : Theme.of(context).cardColor,
+                          color: isSelected
+                              ? color
+                              : Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(8),
                           // border: Border.all(
                           //   color: isSelected ? color : Colors.transparent,
@@ -146,9 +169,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           child: Text(
                             t == 'lost' ? 'Lost' : 'Found',
                             style: TextStyle(
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w400,
                               fontSize: 15,
-                              color: isSelected ? Colors.white : Colors.grey[600],
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.grey[600],
                             ),
                           ),
                         ),
@@ -169,7 +194,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
                     // border: Border.all(
                     //   color: _pickedImage != null
                     //       ? AppTheme.primary
@@ -179,125 +204,149 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   ),
                   child: _pickedImage != null
                       ? Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.file(_pickedImage!,
-                            width: double.infinity,
-                            height: 400,
-                            fit: BoxFit.cover),
-                      ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: GestureDetector(
-                          onTap: () =>
-                              setState(() => _pickedImage = null),
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                _pickedImage!,
+                                width: double.infinity,
+                                height: 400,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            child: const Icon(Icons.close,
-                                color: Colors.white, size: 20),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: GestureDetector(
+                                onTap: () =>
+                                    setState(() => _pickedImage = null),
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.black54,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
                       : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add_photo_alternate_rounded,
-                          size: 50, color: Colors.grey),
-                      const SizedBox(height: 8),
-                      Text('Tap to add a photo',
-                          style: TextStyle(
-                              color: Colors.grey, fontSize: 20)),
-                    ],
-                  ),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add_photo_alternate_outlined,
+                              size: 80,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tap to add a photo',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
                 ),
               ),
               const SizedBox(height: 20),
 
-              // ── Title ─────────────────────────────────────
-              _label('Title -'),
-              _inputField(
+              AppTextField(
                 controller: _titleCtrl,
+                label: 'Title -',
                 hint: 'e.g. Blue water bottle',
               ),
-              const SizedBox(height: 16),
-
-              // ── Description ───────────────────────────────
-              _label('Description -'),
-              _inputField(
+              const SizedBox(height: 20),
+              AppTextField(
                 controller: _descCtrl,
+                label: 'Description -',
                 hint: 'Add details — color, brand, when/where last seen...',
                 maxLines: 3,
               ),
-              const SizedBox(height: 16),
-
-              // ── Location ──────────────────────────────────
-              _label('Location -'),
-              _inputField(
+              const SizedBox(height: 20),
+              AppTextField(
                 controller: _locationCtrl,
+                label: 'Location -',
                 hint: 'e.g. Library 2nd floor, Canteen',
                 prefixIcon: Icons.location_on_outlined,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
 
               // ── Error ─────────────────────────────────────
-              Obx(() => postCtrl.errorMessage.value.isNotEmpty
-                  ? Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.shade200),
-                ),
-                child: Text(postCtrl.errorMessage.value,
-                    style:
-                    TextStyle(color: Colors.red[700], fontSize: 13)),
-              )
-                  : const SizedBox()),
+              Obx(
+                () => postCtrl.errorMessage.value.isNotEmpty
+                    ? Container(
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Text(
+                          postCtrl.errorMessage.value,
+                          style: TextStyle(
+                            color: Colors.red[700],
+                            fontSize: 13,
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
+              ),
 
               // ── Submit button ─────────────────────────────
-              Obx(() => SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: postCtrl.isUploading.value ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primary,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: postCtrl.isUploading.value
-                      ? const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2),
+              Obx(
+                () => SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: postCtrl.isUploading.value ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      SizedBox(width: 12),
-                      Text('Uploading...',
-                          style: TextStyle(
+                    ),
+                    child: postCtrl.isUploading.value
+                        ? const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                'Uploading...',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          )
+                        : const Text(
+                            'Post Item',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
                               color: Colors.white,
-                              fontWeight: FontWeight.w600)),
-                    ],
-                  )
-                      : const Text('Post Item',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white)),
+                            ),
+                          ),
+                  ),
                 ),
-              )),
+              ),
               const SizedBox(height: 24),
             ],
           ),
@@ -308,37 +357,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
   Widget _label(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 8),
-    child: Text(text,
-        style:
-        const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+    child: Text(
+      text,
+      style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
+    ),
   );
-
-  Widget _inputField({
-    required TextEditingController controller,
-    required String hint,
-    int maxLines = 1,
-    IconData? prefixIcon,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        // border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: TextField(
-        controller: controller,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-          border: InputBorder.none,
-          contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          prefixIcon: prefixIcon != null
-              ? Icon(prefixIcon, color: Colors.grey[400], size: 20)
-              : null,
-        ),
-      ),
-    );
-  }
 }

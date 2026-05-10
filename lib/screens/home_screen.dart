@@ -11,45 +11,66 @@ import 'notifications_screen.dart';
 import 'widgets/filter_bar.dart';
 import 'widgets/post_card.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Always refresh when screen mounts (e.g. after login)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<PostController>().fetchPosts();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final postCtrl = Get.find<PostController>();
     final authCtrl = Get.find<AuthController>();
-    postCtrl.fetchPosts();
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
-          decoration: BoxDecoration(gradient: AppTheme.background(context)),
+        decoration: BoxDecoration(gradient: AppTheme.background(context)),
         child: SafeArea(
           child: Column(
             children: [
               // ── Top bar ──────────────────────────────────
               Padding(
-                padding:
-                const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 child: Row(
                   children: [
                     GestureDetector(
                       onTap: () => Get.toNamed('/about'),
-                      child: Image.asset("assets/Findify_rounded_logo.png", height: 40),
+                      child: Image.asset(
+                        "assets/Findify_rounded_logo.png",
+                        height: 40,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Obx(() => Text(
-                          'Hi, ${authCtrl.currentUser.value?.name.split(' ')
-                              .first ?? 'there'} 👋',
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w500),
-                        )),
-                        Text('Find what you\'re looking for',
-                            style: TextStyle(
-                                fontSize: 13, color: Colors.grey[500])),
+                        Obx(
+                          () => Text(
+                            'Hi, ${authCtrl.currentUser.value?.name.split(' ').first ?? 'there'} 👋',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          'Find what you\'re looking for',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[500],
+                          ),
+                        ),
                       ],
                     ),
                     const Spacer(),
@@ -69,8 +90,10 @@ class HomeScreen extends StatelessWidget {
                                 unread > 9 ? '9+' : '$unread',
                                 style: const TextStyle(fontSize: 10),
                               ),
-                              child: const Icon(Icons.notifications_none_outlined,
-                                size: 30,),
+                              child: const Icon(
+                                Icons.notifications_none_outlined,
+                                size: 30,
+                              ),
                             ),
                             tooltip: 'Notifications',
                           );
@@ -78,7 +101,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 12),
                         const _ThemeMenuButton(),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -113,15 +136,24 @@ class HomeScreen extends StatelessWidget {
                     fillColor: Theme.of(context).cardColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(
+                        color: Colors.grey.withValues(alpha: 0.25),
+                        width: 1,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(
+                        color: Colors.grey.withValues(alpha: 0.25),
+                        width: 1,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(
+                        color: Colors.grey.withValues(alpha: 0.5),
+                        width: 1,
+                      ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(vertical: 10),
                   ),
@@ -133,7 +165,9 @@ class HomeScreen extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 child: Align(
-                    alignment: Alignment.centerLeft, child: FilterBar()),
+                  alignment: Alignment.centerLeft,
+                  child: FilterBar(),
+                ),
               ),
               const SizedBox(height: 12),
 
@@ -149,11 +183,16 @@ class HomeScreen extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.wifi_off_outlined,
-                              size: 48, color: Colors.grey),
+                          Icon(
+                            Icons.post_add_rounded,
+                            size: 50,
+                            color: Colors.grey.shade500,
+                          ),
                           const SizedBox(height: 12),
-                          Text(postCtrl.errorMessage.value,
-                              style: const TextStyle(color: Colors.grey)),
+                          Text(
+                            postCtrl.errorMessage.value,
+                            style: const TextStyle(color: Colors.grey),
+                          ),
                           const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: postCtrl.fetchPosts,
@@ -175,8 +214,11 @@ class HomeScreen extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.inbox_rounded,
-                              size: 56, color: Colors.grey[300]),
+                          Icon(
+                            Icons.post_add_rounded,
+                            size: 50,
+                            color: Colors.grey.shade500,
+                          ),
                           const SizedBox(height: 12),
                           Text(
                             postCtrl.searchQuery.value.isNotEmpty
@@ -193,15 +235,18 @@ class HomeScreen extends StatelessWidget {
                     onRefresh: postCtrl.fetchPosts,
                     color: AppTheme.primary,
                     child: ListView.builder(
-                      padding: const EdgeInsets.only(right: 8, left: 8,
-                          bottom: 80),
+                      padding: const EdgeInsets.only(
+                        right: 8,
+                        left: 8,
+                        bottom: 100,
+                      ),
                       itemCount: postCtrl.filteredPosts.length,
                       itemBuilder: (_, i) {
                         final post = postCtrl.filteredPosts[i];
                         return PostCard(
                           post: post,
-                          onTap: () => Get.toNamed('/post-detail',
-                              arguments: post),
+                          onTap: () =>
+                              Get.toNamed('/post-detail', arguments: post),
                         );
                       },
                     ),
@@ -237,6 +282,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
 class _ThemeMenuButton extends StatelessWidget {
   const _ThemeMenuButton();
 
@@ -246,8 +292,8 @@ class _ThemeMenuButton extends StatelessWidget {
 
     const options = [
       (0, Icons.brightness_auto_outlined, 'System'),
-      (1, Icons.light_mode_outlined,      'Light'),
-      (2, Icons.dark_mode_outlined,       'Dark'),
+      (1, Icons.light_mode_outlined, 'Light'),
+      (2, Icons.dark_mode_outlined, 'Dark'),
     ];
 
     return Obx(() {
@@ -266,15 +312,15 @@ class _ThemeMenuButton extends StatelessWidget {
             value: value,
             child: Row(
               children: [
-                Icon(icon,
-                    size: 20,
-                    color: selected ? AppTheme.primary : null),
+                Icon(icon, size: 20, color: selected ? AppTheme.primary : null),
                 const SizedBox(width: 10),
-                Text(label,
-                    style: TextStyle(
-                      fontWeight:  FontWeight.w500,
-                      color: selected ? AppTheme.primary : null,
-                    )),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: selected ? AppTheme.primary : null,
+                  ),
+                ),
                 if (selected) ...[
                   const Spacer(),
                   const Icon(Icons.check, size: 16, color: AppTheme.primary),
@@ -327,7 +373,7 @@ class _GradientFAB extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           splashColor: Colors.white.withOpacity(0.2),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -338,6 +384,7 @@ class _GradientFAB extends StatelessWidget {
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
+                    fontFamily: 'Fredoka',
                     fontSize: 15,
                   ),
                 ),
