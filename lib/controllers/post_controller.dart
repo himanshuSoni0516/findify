@@ -6,6 +6,7 @@ import '../core/api_client.dart';
 import '../core/constants.dart';
 import '../core/storage_service.dart';
 import '../models/post_model.dart';
+import '../models/post_image_model.dart';
 
 class PostController extends GetxController {
   final posts = <PostModel>[].obs;
@@ -15,20 +16,19 @@ class PostController extends GetxController {
   final errorMessage = ''.obs;
 
   // Filter state
-  final selectedFilter = 'all'.obs; // 'all', 'lost', 'found', 'resolved'
+  final selectedFilter = 'all'.obs;
   final searchQuery = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
     fetchPosts();
-    // Auto-filter whenever filter or search changes
     ever(selectedFilter, (_) => _applyFilters());
     ever(searchQuery, (_) => _applyFilters());
     ever(posts, (_) => _applyFilters());
   }
 
-  // ── Fetch all posts (newest first) ───────────────────────
+  // ── Fetch all posts ──────────────────────────────────────
   Future<void> fetchPosts() async {
     isLoading.value = true;
     errorMessage.value = '';
@@ -51,11 +51,25 @@ class PostController extends GetxController {
     }
   }
 
+  // ── Fetch extra images for a post ────────────────────────
+  // Call this in the post detail screen to load additional images
+  Future<List<PostImageModel>> fetchPostImages(String postId) async {
+    try {
+      final res = await ApiClient.get(
+        '${AppConstants.postImagesUrl}?post_id=eq.$postId&order=order.asc',
+      );
+      if (res.statusCode == 200) {
+        final List data = jsonDecode(res.body);
+        return data.map((e) => PostImageModel.fromJson(e)).toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
   // ── Apply filter + search ────────────────────────────────
   void _applyFilters() {
     var result = posts.toList();
 
-    // Type filter
     switch (selectedFilter.value) {
       case 'lost':
         result = result
@@ -70,12 +84,10 @@ class PostController extends GetxController {
       case 'resolved':
         result = result.where((p) => p.isResolved).toList();
         break;
-      case 'all':
       default:
         break;
     }
 
-    // Search filter
     final q = searchQuery.value.toLowerCase();
     if (q.isNotEmpty) {
       result = result
@@ -91,13 +103,12 @@ class PostController extends GetxController {
     filteredPosts.value = result;
   }
 
-  // ── Upload image to Supabase Storage ─────────────────────
+  // ── Upload single image to Supabase Storage ──────────────
   Future<String?> uploadImage(File imageFile, String userId) async {
     try {
       final token = await StorageService.getToken();
       final fileName = '$userId/${DateTime.now().millisecondsSinceEpoch}.jpg';
       final uploadUrl = '${AppConstants.storageUrl}/$fileName';
-
       final bytes = await imageFile.readAsBytes();
 
       final res = await http.post(
@@ -122,30 +133,15 @@ class PostController extends GetxController {
     }
   }
 
-  // ── Delete image from Supabase Storage ───────────────────
-  // Extracts the file path from the public URL and calls the
-  // Storage delete endpoint so the bucket stays clean.
+  // ── Delete single image from Storage ────────────────────
   Future<void> _deleteImage(String imageUrl) async {
     try {
-      // imageUrl looks like:
-      //   https://xxx.supabase.co/storage/v1/object/public/posts/userId/timestamp.jpg
-      // storagePublicUrl looks like:
-      //   https://xxx.supabase.co/storage/v1/object/public/posts
-      //
-      // Stripping the prefix gives us: userId/timestamp.jpg
       final filePath = imageUrl.replaceFirst(
         '${AppConstants.storagePublicUrl}/',
         '',
       );
-
-      // Storage delete endpoint:
-      //   DELETE /storage/v1/object/{bucket}/{filePath}
-      // storageUrl looks like:
-      //   https://xxx.supabase.co/storage/v1/object/posts
       final deleteUrl = '${AppConstants.storageUrl}/$filePath';
-
       final token = await StorageService.getToken();
-
       await http.delete(
         Uri.parse(deleteUrl),
         headers: {
@@ -153,50 +149,76 @@ class PostController extends GetxController {
           'Authorization': 'Bearer $token',
         },
       );
-      // We don't throw on storage delete failure — the post
-      // row delete still proceeds. Worst case: orphaned image.
-    } catch (_) {
-      // Silent — storage cleanup is best-effort
-    }
+    } catch (_) {}
   }
 
-  // ── Create new post ──────────────────────────────────────
+  // ── Create new post with multiple images ─────────────────
   Future<bool> createPost({
     required String title,
     required String description,
     required String type,
     required String location,
-    File? imageFile,
+    List<File> imageFiles = const [], // <-- was File? imageFile
     required String userId,
   }) async {
     isUploading.value = true;
     errorMessage.value = '';
-    try {
-      String? imageUrl;
 
-      if (imageFile != null) {
-        imageUrl = await uploadImage(imageFile, userId);
-        if (imageUrl == null) return false;
+    try {
+      // 1. Upload all images, collect URLs
+      final List<String> uploadedUrls = [];
+      for (final file in imageFiles) {
+        final url = await uploadImage(file, userId);
+        if (url == null) return false; // stop if any upload fails
+        uploadedUrls.add(url);
       }
 
-      final res = await ApiClient.post(AppConstants.postsUrl, {
-        'user_id': userId,
-        'title': title,
-        'description': description,
-        'type': type,
-        'location': location,
-        'image_url': imageUrl,
-        'is_resolved': false,
-      }, requiresAuth: true);
+      // 2. First URL = cover image stored directly in posts table
+      //    (keeps backward compatibility with existing posts)
+      final coverUrl = uploadedUrls.isNotEmpty ? uploadedUrls.first : null;
 
-      if (res.statusCode == 201) {
-        await fetchPosts();
-        return true;
-      } else {
+      // 3. Create the post row
+      //    IMPORTANT: add 'Prefer: return=representation' so Supabase
+      //    returns the created row including its auto-generated id
+      final res = await ApiClient.post(
+        AppConstants.postsUrl,
+        {
+          'user_id': userId,
+          'title': title,
+          'description': description,
+          'type': type,
+          'location': location,
+          'image_url': coverUrl,
+          'is_resolved': false,
+        },
+        requiresAuth: true,
+        // Make sure your ApiClient.post passes this header,
+        // or add it manually — see note below
+        extraHeaders: {'Prefer': 'return=representation'},
+      );
+
+      if (res.statusCode != 201) {
         final data = jsonDecode(res.body);
         errorMessage.value = data['message'] ?? 'Failed to create post';
         return false;
       }
+
+      // 4. Get the new post's id from the response
+      final List responseData = jsonDecode(res.body);
+      final newPostId = responseData[0]['id'] as String;
+
+      // 5. Insert extra images (index 1 onwards) into post_images table
+      final extraUrls = uploadedUrls.skip(1).toList();
+      for (int i = 0; i < extraUrls.length; i++) {
+        await ApiClient.post(AppConstants.postImagesUrl, {
+          'post_id': newPostId,
+          'image_url': extraUrls[i],
+          'order': i, // 0-based order among extra images
+        }, requiresAuth: true);
+      }
+
+      await fetchPosts();
+      return true;
     } catch (e) {
       errorMessage.value = 'Something went wrong';
       return false;
@@ -211,7 +233,6 @@ class PostController extends GetxController {
       await ApiClient.patch('${AppConstants.postsUrl}?id=eq.$postId', {
         'is_resolved': true,
       });
-      // Update locally — avoids a full network round trip
       final idx = posts.indexWhere((p) => p.id == postId);
       if (idx != -1) {
         posts[idx] = posts[idx].copyWith(isResolved: true);
@@ -221,21 +242,28 @@ class PostController extends GetxController {
     }
   }
 
-  // ── Delete post ──────────────────────────────────────────
+  // ── Delete post + all its images ─────────────────────────
   Future<void> deletePost(String postId) async {
     try {
-      // 1. Find the post so we can grab its imageUrl before removing it
       final post = posts.firstWhereOrNull((p) => p.id == postId);
 
-      // 2. Delete the database row
+      // 1. Fetch extra images before deleting so we can clean Storage
+      final extraImages = await fetchPostImages(postId);
+
+      // 2. Delete post row (CASCADE will delete post_images rows too)
       await ApiClient.delete('${AppConstants.postsUrl}?id=eq.$postId');
 
-      // 3. Remove from local list immediately (optimistic UI)
+      // 3. Remove from local list immediately
       posts.removeWhere((p) => p.id == postId);
 
-      // 4. Delete image from Storage if one exists
+      // 4. Delete cover image from Storage
       if (post?.imageUrl != null && post!.imageUrl!.isNotEmpty) {
         await _deleteImage(post.imageUrl!);
+      }
+
+      // 5. Delete extra images from Storage
+      for (final img in extraImages) {
+        await _deleteImage(img.imageUrl);
       }
     } catch (e) {
       errorMessage.value = 'Could not delete post';

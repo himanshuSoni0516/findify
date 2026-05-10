@@ -19,9 +19,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final _descCtrl = TextEditingController();
   final _locationCtrl = TextEditingController();
   String _type = 'lost';
-  File? _pickedImage;
-  final _picker = ImagePicker();
 
+  // Changed: was File? _pickedImage
+  final List<File> _pickedImages = [];
+  static const int _maxImages = 5;
+
+  final _picker = ImagePicker();
   final postCtrl = Get.find<PostController>();
   final authCtrl = Get.find<AuthController>();
 
@@ -33,8 +36,20 @@ class _AddPostScreenState extends State<AddPostScreen> {
     super.dispose();
   }
 
+  // ── Pick one image and add to list ───────────────────────
   Future<void> _pickImage() async {
-    final result = await showModalBottomSheet<ImageSource>(
+    if (_pickedImages.length >= _maxImages) {
+      Get.snackbar(
+        'Limit reached',
+        'You can only add up to $_maxImages photos',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    final source = await showModalBottomSheet<ImageSource>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -69,18 +84,24 @@ class _AddPostScreenState extends State<AddPostScreen> {
       ),
     );
 
-    if (result != null) {
+    if (source != null) {
       final picked = await _picker.pickImage(
-        source: result,
+        source: source,
         maxWidth: 1080,
         imageQuality: 80,
       );
       if (picked != null) {
-        setState(() => _pickedImage = File(picked.path));
+        setState(() => _pickedImages.add(File(picked.path)));
       }
     }
   }
 
+  // ── Remove image at index ────────────────────────────────
+  void _removeImage(int index) {
+    setState(() => _pickedImages.removeAt(index));
+  }
+
+  // ── Submit ───────────────────────────────────────────────
   Future<void> _submit() async {
     if (_titleCtrl.text.trim().isEmpty) {
       Get.snackbar(
@@ -109,7 +130,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       description: _descCtrl.text.trim(),
       type: _type,
       location: _locationCtrl.text.trim(),
-      imageFile: _pickedImage,
+      imageFiles: _pickedImages, // <-- pass the list
       userId: userId,
     );
 
@@ -140,7 +161,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Type selector ─────────────────────────────
+              // ── Type selector ──────────────────────────────
               _label('Type -'),
               Row(
                 children: ['lost', 'found'].map((t) {
@@ -160,10 +181,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
                               ? color
                               : Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(8),
-                          // border: Border.all(
-                          //   color: isSelected ? color : Colors.transparent,
-                          //   width: isSelected ? 2 : 1,
-                          // ),
                         ),
                         child: Center(
                           child: Text(
@@ -184,80 +201,53 @@ class _AddPostScreenState extends State<AddPostScreen> {
               ),
               const SizedBox(height: 20),
 
-              // ── Image picker ──────────────────────────────
-              _label('Photo (optional)'),
-              GestureDetector(
-                onTap: _pickImage,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  height: _pickedImage != null ? 400 : 400,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(8),
-                    // border: Border.all(
-                    //   color: _pickedImage != null
-                    //       ? AppTheme.primary
-                    //       : Colors.grey.shade200,
-                    //   width: _pickedImage != null ? 2 : 1,
-                    // ),
+              // ── Photos section ─────────────────────────────
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _label('Photos (optional)'),
+                  // Counter: "2 / 5"
+                  Text(
+                    '${_pickedImages.length} / $_maxImages',
+                    style: TextStyle(fontSize: 13, color: Colors.grey[500]),
                   ),
-                  child: _pickedImage != null
-                      ? Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.file(
-                                _pickedImage!,
-                                width: double.infinity,
-                                height: 400,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: GestureDetector(
-                                onTap: () =>
-                                    setState(() => _pickedImage = null),
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.black54,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.add_photo_alternate_outlined,
-                              size: 80,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Tap to add a photo',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ],
-                        ),
+                ],
+              ),
+              const SizedBox(height: 4),
+
+              // Horizontal scroll strip
+              SizedBox(
+                height: 110,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    // ── Existing picked images ───────────────
+                    ..._pickedImages.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final file = entry.value;
+                      return _buildImageThumbnail(file, index);
+                    }),
+
+                    // ── "Add more" button ────────────────────
+                    // Only show if under the limit
+                    if (_pickedImages.length < _maxImages) _buildAddButton(),
+                  ],
                 ),
               ),
+
+              // Hint text below strip
+              if (_pickedImages.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    'First photo is used as cover image',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
+                ),
+
               const SizedBox(height: 20),
 
+              // ── Text fields ────────────────────────────────
               AppTextField(
                 controller: _titleCtrl,
                 label: 'Title -',
@@ -279,7 +269,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               ),
               const SizedBox(height: 20),
 
-              // ── Error ─────────────────────────────────────
+              // ── Error ──────────────────────────────────────
               Obx(
                 () => postCtrl.errorMessage.value.isNotEmpty
                     ? Container(
@@ -301,7 +291,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     : const SizedBox(),
               ),
 
-              // ── Submit button ─────────────────────────────
+              // ── Submit ─────────────────────────────────────
               Obx(
                 () => SizedBox(
                   width: double.infinity,
@@ -315,10 +305,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
                       ),
                     ),
                     child: postCtrl.isUploading.value
-                        ? const Row(
+                        ? Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(
+                              const SizedBox(
                                 width: 18,
                                 height: 18,
                                 child: CircularProgressIndicator(
@@ -326,10 +316,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                   strokeWidth: 2,
                                 ),
                               ),
-                              SizedBox(width: 12),
+                              const SizedBox(width: 12),
                               Text(
-                                'Uploading...',
-                                style: TextStyle(
+                                // Shows "Uploading 3 photos..." dynamically
+                                _pickedImages.isEmpty
+                                    ? 'Uploading...'
+                                    : 'Uploading ${_pickedImages.length} '
+                                          '${_pickedImages.length == 1 ? "photo" : "photos"}...',
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -350,6 +344,97 @@ class _AddPostScreenState extends State<AddPostScreen> {
               const SizedBox(height: 24),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // ── Image thumbnail with remove button ───────────────────
+  Widget _buildImageThumbnail(File file, int index) {
+    return Container(
+      width: 100,
+      height: 110,
+      margin: const EdgeInsets.only(right: 8),
+      child: Stack(
+        children: [
+          // Image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.file(file, width: 100, height: 110, fit: BoxFit.cover),
+          ),
+
+          // "Cover" badge on first image
+          if (index == 0)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Cover',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+
+          // Remove (×) button
+          Positioned(
+            top: 4,
+            right: 4,
+            child: GestureDetector(
+              onTap: () => _removeImage(index),
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                decoration: const BoxDecoration(
+                  color: Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close, color: Colors.white, size: 14),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── "Add photo" button ───────────────────────────────────
+  Widget _buildAddButton() {
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Container(
+        width: 100,
+        height: 110,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_photo_alternate_outlined,
+              size: 32,
+              color: Colors.grey[500],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Add photo',
+              style: TextStyle(color: Colors.grey[500], fontSize: 12),
+            ),
+          ],
         ),
       ),
     );

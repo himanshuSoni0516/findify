@@ -8,6 +8,7 @@ import '../controllers/post_controller.dart';
 import '../core/api_client.dart';
 import '../core/app_theme.dart';
 import '../core/constants.dart';
+import '../models/post_image_model.dart';
 import '../models/post_model.dart';
 
 class PostDetailScreen extends StatefulWidget {
@@ -26,10 +27,41 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   Map<String, dynamic>? ownerProfile;
   bool loadingOwner = true;
 
+  // Multi-image support
+  List<PostImageModel> _extraImages = [];
+  bool _imagesLoading = true;
+  int _currentPage = 0;
+  final PageController _pageCtrl = PageController();
+
   @override
   void initState() {
     super.initState();
     _fetchOwnerProfile();
+    _loadExtraImages(); // <-- add this
+  }
+
+  Future<void> _loadExtraImages() async {
+    final images = await postCtrl.fetchPostImages(post.id);
+    setState(() {
+      _extraImages = images;
+      _imagesLoading = false;
+    });
+  }
+
+  // All image URLs combined: cover first, then extras
+  List<String> get _allImageUrls {
+    final urls = <String>[];
+    if (post.imageUrl != null && post.imageUrl!.isNotEmpty) {
+      urls.add(post.imageUrl!);
+    }
+    urls.addAll(_extraImages.map((e) => e.imageUrl));
+    return urls;
+  }
+
+  @override
+  void dispose() {
+    _pageCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchOwnerProfile() async {
@@ -105,25 +137,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             ),
           ),
 
-          // ── Image Section ────────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(0),
-                child: post.imageUrl != null
-                    ? Image.network(
-                        post.imageUrl!,
-                        height: 400,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            _imageFallback(typeColor, isLost),
-                      )
-                    : _imageFallback(typeColor, isLost),
-              ),
-            ),
-          ),
+          // ── Image Section (multi-image gallery) ──────────────────────
+          SliverToBoxAdapter(child: _buildImageGallery(typeColor, isLost)),
 
           // ── Content ─────────────────────────────────────
           SliverToBoxAdapter(
@@ -344,6 +359,89 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
                   const SizedBox(height: 32),
                 ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageGallery(Color typeColor, bool isLost) {
+    final urls = _allImageUrls;
+
+    // No images at all — show fallback
+    if (urls.isEmpty) return _imageFallback(typeColor, isLost);
+
+    // Single image — no PageView overhead needed
+    if (urls.length == 1) {
+      return SizedBox(
+        height: 400,
+        child: Image.network(
+          urls[0],
+          height: 400,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _imageFallback(typeColor, isLost),
+        ),
+      );
+    }
+
+    // Multiple images — swipeable PageView with dots + counter
+    return SizedBox(
+      height: 400,
+      child: Stack(
+        children: [
+          // Swipeable images
+          PageView.builder(
+            controller: _pageCtrl,
+            itemCount: urls.length,
+            onPageChanged: (i) => setState(() => _currentPage = i),
+            itemBuilder: (_, i) => Image.network(
+              urls[i],
+              height: 400,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => _imageFallback(typeColor, isLost),
+            ),
+          ),
+
+          // "1 / 3" counter — top right
+          Positioned(
+            top: 12,
+            right: 12,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${_currentPage + 1} / ${urls.length}',
+                style: const TextStyle(color: Colors.white, fontSize: 13),
+              ),
+            ),
+          ),
+
+          // Dot indicators — bottom center
+          Positioned(
+            bottom: 12,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                urls.length,
+                (i) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  width: _currentPage == i ? 16 : 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: _currentPage == i ? Colors.white : Colors.white54,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
               ),
             ),
           ),
