@@ -1,30 +1,29 @@
 # Findify — Lost & Found App
 
-A full-stack mobile application built for college environments where students can report lost or found items and connect with each other to recover them.
+> A Flutter mobile app for college students to report and recover lost items on campus.
 
-> Built with Flutter + Supabase (REST API only) as a portfolio project.
-
----
-
-## Screenshots
-
-<!-- Add screenshots after running the app -->
-| Feed | Add Post | Post Detail | Profile |
-|------|----------|-------------|---------|
-| ![feed](https://raw.githubusercontent.com/himanshuSoni0516/findify/master/screenshots/feed.png) | ![add](https://raw.githubusercontent.com/himanshuSoni0516/findify/master/screenshots/add.png) | ![detail](https://raw.githubusercontent.com/himanshuSoni0516/findify/master/screenshots/detail.png) | ![profile](https://raw.githubusercontent.com/himanshuSoni0516/findify/master/screenshots/profile.png) |
+Built with **Flutter + Supabase** (REST API only) as a BCA final year project.
 
 ---
 
 ## Features
 
-- **Authentication** — Email/password signup & login via Supabase Auth (JWT)
-- **Lost & Found Feed** — Browse all posts with real-time search and Lost/Found filter
-- **Create Posts** — Upload item photo from camera or gallery, add location and description
-- **Post Detail** — View full item info and contact the owner directly
-- **Mark Resolved** — Owner can mark their item as recovered
-- **Profile Screen** — View your posts, stats, and manage or delete them
-- **Dark Mode** — Follows system theme automatically
-- **Persistent Login** — JWT token stored locally, auto-login on relaunch
+- **Auth** — Email/password signup & login via Supabase Auth (JWT), persistent session
+- **Feed** — Browse posts with real-time search and Lost / Found / Resolved filters
+- **Create Posts** — Upload up to 5 item photos, add location and description
+- **Post Detail** — View full item info and call the owner directly
+- **Notifications** — Real-time in-app alerts when new posts are created
+- **Mark Resolved** — Owner marks item as recovered; post updates to Resolved state
+- **Profile** — View your posts, stats, and manage or delete them
+- **Themes** — System / Light / Dark mode, persisted across sessions
+
+---
+
+## Screenshots
+
+| Feed | Add Post | Post Detail | Profile |
+|------|----------|-------------|---------|
+| ![feed](https://raw.githubusercontent.com/himanshuSoni0516/findify/master/screenshots/feed.png) | ![add](https://raw.githubusercontent.com/himanshuSoni0516/findify/master/screenshots/add.png) | ![detail](https://raw.githubusercontent.com/himanshuSoni0516/findify/master/screenshots/detail.png) | ![profile](https://raw.githubusercontent.com/himanshuSoni0516/findify/master/screenshots/profile.png) |
 
 ---
 
@@ -46,30 +45,42 @@ A full-stack mobile application built for college environments where students ca
 
 ```
 lib/
-├── core/
-│   ├── app_theme.dart        # Light & dark theme definitions
-│   ├── api_client.dart       # HTTP wrapper (GET/POST/PATCH/DELETE + JWT)
-│   ├── constants.dart        # Supabase URL, endpoints
-│   └── storage_service.dart  # JWT token persistence
 ├── controllers/
-│   ├── auth_controller.dart  # Signup, login, logout, auto-login
-│   └── post_controller.dart  # Fetch, create, filter, search, delete
+│   ├── auth_controller.dart         # Signup, login, logout, session
+│   ├── notification_controller.dart # Realtime notifications via Supabase
+│   ├── post_controller.dart         # Fetch, create, filter, search, delete
+│   └── theme_controller.dart        # Persists theme preference
+├── core/
+│   ├── api_client.dart              # HTTP wrapper (GET/POST/PATCH/DELETE + JWT)
+│   ├── app_theme.dart               # Material 3 light & dark themes
+│   ├── constants.dart               # Supabase URL, endpoints
+│   └── storage_service.dart         # JWT token persistence
 ├── models/
-│   ├── user_model.dart
-│   └── post_model.dart
+│   ├── notification_model.dart
+│   ├── post_image_model.dart
+│   ├── post_model.dart
+│   └── user_model.dart
 └── screens/
-    ├── splash_screen.dart
-    ├── login_screen.dart
-    ├── signup_screen.dart
-    ├── home_screen.dart
+    ├── widgets/
+    │   ├── app_dialog.dart
+    │   ├── app_snackbar.dart
+    │   ├── app_text_field.dart
+    │   ├── filter_bar.dart
+    │   ├── glass_nav_bar.dart
+    │   ├── gradient_button.dart
+    │   ├── main_shell.dart
+    │   ├── my_post_card.dart
+    │   ├── post_card.dart
+    │   └── skeleton_loader.dart
+    ├── about_screen.dart
     ├── add_post_screen.dart
+    ├── home_screen.dart
+    ├── login_screen.dart
+    ├── notifications_screen.dart
     ├── post_detail_screen.dart
     ├── profile_screen.dart
-    └── widgets/
-        ├── post_card.dart
-        ├── my_post_card.dart
-        ├── filter_bar.dart
-        └── skeleton_loader.dart
+    ├── signup_screen.dart
+    └── splash_screen.dart
 ```
 
 ---
@@ -92,13 +103,29 @@ lib/
 | user_id | UUID | References auth.users |
 | title | TEXT | |
 | description | TEXT | |
-| type | TEXT | `lost` or `found` |
+| type | TEXT | `lost`, `found`, or `resolved` |
 | location | TEXT | |
-| image_url | TEXT | Supabase Storage public URL |
 | is_resolved | BOOLEAN | Default false |
 | created_at | TIMESTAMP | |
 
-Row Level Security is enabled on both tables — users can only modify their own data.
+### `post_images`
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | Primary key |
+| post_id | UUID | References posts |
+| image_url | TEXT | Supabase Storage public URL |
+| display_order | INT | 1–5, for carousel ordering |
+
+### `notifications`
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | Primary key |
+| user_id | UUID | Recipient |
+| post_id | UUID | Triggering post |
+| is_read | BOOLEAN | Default false |
+| created_at | TIMESTAMP | |
+
+Row Level Security is enabled on all tables — users can only read/modify their own data.
 
 ---
 
@@ -110,60 +137,57 @@ Row Level Security is enabled on both tables — users can only modify their own
 
 ### Setup
 
-1. **Clone the repo**
+1. Clone the repo
 ```bash
-   git clone https://github.com/YOUR_USERNAME/findify.git
-   cd findify
+git clone https://github.com/himanshuSoni0516/findify.git
+cd findify
 ```
 
-2. **Install dependencies**
+2. Install dependencies
 ```bash
-   flutter pub get
+flutter pub get
 ```
 
-3. **Configure Supabase**
-
-   Open `lib/core/constants.dart` and fill in your project credentials:
+3. Add your Supabase credentials in `lib/core/constants.dart`
 ```dart
-   static const String supabaseUrl = 'YOUR_SUPABASE_URL';
-   static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
+static const String supabaseUrl = 'YOUR_SUPABASE_URL';
+static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
 ```
 
-4. **Set up the database**
+4. Run the SQL schema in your Supabase SQL Editor and enable RLS policies.
 
-   Run the SQL from the [Database Schema](#database-schema) section in your Supabase SQL Editor. Enable RLS and add the policies described in the project docs.
-
-5. **Run the app**
+5. Run the app
 ```bash
-   flutter run
+flutter run
 ```
 
 ---
 
 ## Security
 
-- Row Level Security (RLS) enforced in Supabase — users can only edit/delete their own posts and profiles
-- JWT tokens stored locally via `shared_preferences`, sent as `Authorization: Bearer` headers on every authenticated request
-- Input validated on the frontend before any API call is made
+- RLS enforced in Supabase — users can only edit/delete their own posts and profile
+- JWT stored locally via `shared_preferences`, sent as `Authorization: Bearer` on every request
+- Input validated on the frontend before any API call
 
 ---
 
 ## Future Scope
 
 - In-app messaging between users
-- Multi-college support with college verification
-- Admin panel to moderate spam posts
-- Push notifications when someone contacts you
+- Multi-college support with email domain verification
+- Admin panel for spam moderation
+- Push notifications (FCM)
 - Item category tags (Electronics, Books, ID Cards, etc.)
 
 ---
 
-## Author
+## Authors
 
-**Himanshu Soni**
+**Himanshu Soni** & **Meet Swarnkar** — BCA 3rd Year, NIBM Nathdwara (2025–26)
+
 - GitHub: [himanshusoni0516](https://github.com/himanshuSoni0516)
 - LinkedIn: [Himanshu Soni](https://www.linkedin.com/in/himanshusoni0516/)
 
 ---
 
-*Built as a portfolio project to demonstrate full-stack Flutter development with REST API integration.*
+*Built as a BCA final year project to demonstrate full-stack Flutter development with Supabase.*
