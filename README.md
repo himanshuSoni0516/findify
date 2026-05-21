@@ -11,7 +11,7 @@ A full-stack mobile application built for college environments where students ca
 <!-- Add screenshots after running the app -->
 | Feed | Add Post | Post Detail | Profile |
 |------|----------|-------------|---------|
-| ![feed](screenshots/feed.png) | ![add](screenshots/add.png) | ![detail](screenshots/detail.png) | ![profile](screenshots/profile.png) |
+| ![feed](https://raw.githubusercontent.com/himanshuSoni0516/findify/master/screenshots/feed.png) | ![add](https://raw.githubusercontent.com/himanshuSoni0516/findify/master/screenshots/add.png) | ![detail](https://raw.githubusercontent.com/himanshuSoni0516/findify/master/screenshots/detail.png) | ![profile](https://raw.githubusercontent.com/himanshuSoni0516/findify/master/screenshots/profile.png) |
 
 ---
 
